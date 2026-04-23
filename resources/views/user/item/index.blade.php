@@ -17,7 +17,7 @@
                         <th>Brand / Model</th>
                         <th>Spesifikasi</th>
                         <th class="text-center">Unit Tersedia</th>
-                        <th class="text-center" width="15%">Aksi</th>
+                        {{-- <th class="text-center" width="15%">Aksi</th> --}}
                     </tr>
                 </thead>
                 <tbody>
@@ -50,7 +50,7 @@
                             </span>
                         </td>
 
-                        <td class="text-center">
+                        {{-- <td class="text-center">
                             <a href="{{ route('user.items.show', $item) }}"
                                class="btn btn-sm btn-outline-secondary">
                                 <i class="mdi mdi-eye"></i>
@@ -60,7 +60,7 @@
                                class="btn btn-sm btn-primary">
                                 <i class="mdi mdi-plus"></i>
                             </a>
-                        </td>
+                        </td> --}}
                     </tr>
                     @empty
                     <tr>

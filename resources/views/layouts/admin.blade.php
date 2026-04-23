@@ -1,21 +1,3 @@
-{{-- <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
-                </div>
-            </div>
-        </div>
-    </div>
-</x-app-layout> --}}
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -34,6 +16,7 @@
     <link rel="stylesheet" href="{{ asset('assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    @stack('style')
   </head>
   <body class="with-welcome-text">
     <div class="container-scroller">
@@ -52,31 +35,15 @@
               color:#1F3BB3;
               letter-spacing:1px;
               text-decoration:none;">
-              SIPAL
+              SIPALLL
             </a>
 
-            <a class="navbar-brand brand-logo-mini" href="{{route('dashboard')}}l">
+            <a class="navbar-brand brand-logo-mini" href="{{route('dashboard')}}">
               <img src="{{ asset('assets/images/logo-mini.svg') }}" alt="logo" />
             </a>
           </div>
         </div>
         <div class="navbar-menu-wrapper d-flex align-items-top">
-          <ul class="navbar-nav">
-            <li class="nav-item fw-semibold d-none d-lg-block ms-0">
-              {{-- <h1 class="welcome-text">
-                  Halo, <span class="text-black fw-bold">{{ Auth::user()->name }}</span>
-              </h1> --}}
-          
-              {{-- <h3 class="welcome-sub-text">
-                  @if(Auth::user()->role === 'admin')
-                      Ringkasan pengelolaan dan aktivitas peminjaman alat laboratorium
-                  @else
-                      Ringkasan peminjaman dan status alat laboratorium Anda
-                  @endif
-              </h3> --}}
-          </li>
-          
-          </ul>
           <ul class="navbar-nav ms-auto">
             <li class="nav-item d-none d-lg-block">
               <div id="datepicker-popup" class="input-group date datepicker navbar-date-picker">
@@ -86,111 +53,22 @@
                 <input type="text" class="form-control">
               </div>
             </li>
-            {{-- <li class="nav-item">
-              <form class="search-form" action="#">
-                <i class="icon-search"></i>
-                <input type="search" class="form-control" placeholder="Search Here" title="Search here">
-              </form>
-            </li> --}}
-            {{-- <li class="nav-item dropdown">
-              <a class="nav-link count-indicator" id="notificationDropdown" href="#" data-bs-toggle="dropdown">
-                <i class="icon-bell"></i>
-                <span class="count"></span>
-              </a>
-              <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0" aria-labelledby="notificationDropdown">
-                <a class="dropdown-item py-3 border-bottom">
-                  <p class="mb-0 fw-medium float-start">You have 4 new notifications </p>
-                  <span class="badge badge-pill badge-primary float-end">View all</span>
-                </a>
-                <a class="dropdown-item preview-item py-3">
-                  <div class="preview-thumbnail">
-                    <i class="mdi mdi-alert m-auto text-primary"></i>
-                  </div>
-                  <div class="preview-item-content">
-                    <h6 class="preview-subject fw-normal text-dark mb-1">Application Error</h6>
-                    <p class="fw-light small-text mb-0"> Just now </p>
-                  </div>
-                </a>
-                <a class="dropdown-item preview-item py-3">
-                  <div class="preview-thumbnail">
-                    <i class="mdi mdi-lock-outline m-auto text-primary"></i>
-                  </div>
-                  <div class="preview-item-content">
-                    <h6 class="preview-subject fw-normal text-dark mb-1">Settings</h6>
-                    <p class="fw-light small-text mb-0"> Private message </p>
-                  </div>
-                </a>
-                <a class="dropdown-item preview-item py-3">
-                  <div class="preview-thumbnail">
-                    <i class="mdi mdi-airballoon m-auto text-primary"></i>
-                  </div>
-                  <div class="preview-item-content">
-                    <h6 class="preview-subject fw-normal text-dark mb-1">New user registration</h6>
-                    <p class="fw-light small-text mb-0"> 2 days ago </p>
-                  </div>
-                </a>
-              </div>
-            </li> --}}
-            {{-- <li class="nav-item dropdown">
-              <a class="nav-link count-indicator" id="countDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="icon-mail icon-lg"></i>
-              </a>
-              <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0" aria-labelledby="countDropdown">
-                <a class="dropdown-item py-3">
-                  <p class="mb-0 fw-medium float-start">You have 7 unread mails </p>
-                  <span class="badge badge-pill badge-primary float-end">View all</span>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item preview-item">
-                  <div class="preview-thumbnail">
-                    <img src="assets/images/faces/face10.jpg" alt="image" class="img-sm profile-pic">
-                  </div>
-                  <div class="preview-item-content flex-grow py-2">
-                    <p class="preview-subject ellipsis fw-medium text-dark">Marian Garner </p>
-                    <p class="fw-light small-text mb-0"> The meeting is cancelled </p>
-                  </div>
-                </a>
-                <a class="dropdown-item preview-item">
-                  <div class="preview-thumbnail">
-                    <img src="assets/images/faces/face12.jpg" alt="image" class="img-sm profile-pic">
-                  </div>
-                  <div class="preview-item-content flex-grow py-2">
-                    <p class="preview-subject ellipsis fw-medium text-dark">David Grey </p>
-                    <p class="fw-light small-text mb-0"> The meeting is cancelled </p>
-                  </div>
-                </a>
-                <a class="dropdown-item preview-item">
-                  <div class="preview-thumbnail">
-                    <img src="assets/images/faces/face1.jpg" alt="image" class="img-sm profile-pic">
-                  </div>
-                  <div class="preview-item-content flex-grow py-2">
-                    <p class="preview-subject ellipsis fw-medium text-dark">Travis Jenkins </p>
-                    <p class="fw-light small-text mb-0"> The meeting is cancelled </p>
-                  </div>
-                </a>
-              </div>
-            </li> --}}
             <li class="nav-item dropdown d-none d-lg-block user-dropdown">
               <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="mdi mdi-account-circle menu-icon" style="font-size: 28px;"></i>
-                {{-- <img class="img-xs rounded-circle" src="assets/images/faces/face8.jpg" alt="Profile image"> </a> --}}
+                <i class="mdi mdi-account-circle menu-icon" style="font-size: 28px;">
+                </i>
+              </a>          
               <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
                 <div class="dropdown-header text-center">
                     @auth
-                        {{-- <img class="img-md rounded-circle" src="assets/images/faces/face8.jpg" alt="Profile image"> --}}
-                        {{-- <i class="mdi mdi-account-circle" style="font-size: 30px;"></i> --}}
                         <p class="mb-1 mt-3 fw-semibold">{{ Auth::user()->name }}</p>
                         <p class="fw-light text-muted mb-0">{{ Auth::user()->email }}</p>
                     @else
-                        {{-- <img class="img-md rounded-circle" src="assets/images/faces/face8.jpg" alt="Profile image"> --}}
                         <p class="mb-1 mt-3 fw-semibold">Guest</p>
                         <p class="fw-light text-muted mb-0">Not logged in</p>
                     @endauth
                 </div>
                 <a class="dropdown-item"  href="{{ route('profile.edit') }}"><i class="dropdown-item-icon mdi mdi-account-outline text-primary me-2"></i> Profil</a>
-                {{-- <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-message-text-outline text-primary me-2"></i> Messages</a>
-                <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-calendar-check-outline text-primary me-2"></i> Activity</a>
-                <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-help-circle-outline text-primary me-2"></i> FAQ</a> --}}
                 <form method="POST" action="{{ route('logout') }}">
                   @csrf
                   <button type="submit" class="dropdown-item">
@@ -262,7 +140,7 @@
                 <a class="nav-link {{ request()->routeIs('admin.loans.index') && !request()->has('status') ? 'active' : '' }}"
                   href="{{ route('admin.loans.index') }}">
                     <i class="mdi mdi-clipboard-text-outline menu-icon"></i>
-                    <span class="menu-title">Semua Pengajuan</span>
+                    <span class="menu-title">Pengajuan</span>
                     @php
                         $pendingCount = \App\Models\Loan::where('status', 'pending')->count();
                     @endphp
@@ -272,46 +150,11 @@
                 </a>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.loans.index') && request('status') == 'pending' ? 'active' : '' }}"
-                  href="{{ route('admin.loans.index', ['status' => 'pending']) }}">
-                    <i class="mdi mdi-timer-sand menu-icon"></i>
-                    <span class="menu-title">Pending</span>
-                    @if($pendingCount > 0)
-                    <span class="badge bg-warning ms-auto">{{ $pendingCount }}</span>
-                    @endif
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.loans.index') && request('status') == 'approved' ? 'active' : '' }}"
-                  href="{{ route('admin.loans.index', ['status' => 'approved']) }}">
-                    <i class="mdi mdi-check-circle-outline menu-icon"></i>
-                    <span class="menu-title">Disetujui</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.loans.index') && request('status') == 'borrowed' ? 'active' : '' }}"
-                  href="{{ route('admin.loans.index', ['status' => 'borrowed']) }}">
-                    <i class="mdi mdi-bookmark menu-icon"></i>
-                    <span class="menu-title">Dipinjam</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.loans.index') && request('status') == 'returned' ? 'active' : '' }}"
-                  href="{{ route('admin.loans.index', ['status' => 'returned']) }}">
-                    <i class="mdi mdi-history menu-icon"></i>
-                    <span class="menu-title">Riwayat</span>
-                </a>
-            </li>
-
             <!-- ADMIN LAINNYA -->
             <li class="nav-item nav-category">ADMINISTRASI</li>
 
             <li class="nav-item">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="{{route('admin.users.index')}}">
                     <i class="mdi mdi-account-multiple-outline menu-icon"></i>
                     <span class="menu-title">Manajemen User</span>
                 </a>
@@ -440,7 +283,6 @@
           });
       }
       
-      
       // ✅ Success Alert
       @if(session('success'))
       Swal.fire({
@@ -451,7 +293,6 @@
           timer: 2000
       });
       @endif
-      
       
       // ✅ Error Alert
       @if(session('error'))
@@ -495,6 +336,6 @@
 
       });      
     </script>
-  
+    @stack('scripts')
   </body>
 </html>

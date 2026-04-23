@@ -3,7 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Item;
-use App\Models\Categories;
+use App\Models\category;
 use App\Models\SumberDana;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -14,7 +14,7 @@ class ItemImport implements ToModel, WithHeadingRow, WithValidation
     public function model(array $row)
     {
         // Cari kategori berdasarkan nama
-        $category = Categories::where('name', $row['category'])->first();
+        $category = category::where('name', $row['category'])->first();
 
         // Cari sumber dana berdasarkan nama (opsional)
         $fundingSource = null;

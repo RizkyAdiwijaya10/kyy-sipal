@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
             'email' => 'admin@gmail.com',
             'email_verified_at' => Carbon::now(),
             'password' => Hash::make('admin123'),
-            'phone' => '081234567890',
+            'phone' => '08134335878',
             'role' => 'admin',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),

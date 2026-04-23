@@ -17,7 +17,7 @@ class DashboardController extends Controller
     |--------------------------------------------------------------------------
     | ADMIN DASHBOARD
     |--------------------------------------------------------------------------
-    */
+    */ 
     public function dashboard()
     {
         if (auth()->user()->role == 'admin') {
@@ -29,17 +29,6 @@ class DashboardController extends Controller
 
     public function adminDashboard()
     {
-        // Greeting
-        $hour = Carbon::now()->hour;
-        if ($hour < 12) {
-            $greeting = 'Selamat pagi';
-        } elseif ($hour < 17) {
-            $greeting = 'Selamat siang';
-        } elseif ($hour < 20) {
-            $greeting = 'Selamat sore';
-        } else {
-            $greeting = 'Selamat malam';
-        }
 
         // Statistics
         $totalItems = Item::count();
@@ -101,7 +90,7 @@ class DashboardController extends Controller
             ->get();
 
         return view('admin.dashboard.index', compact(
-            'greeting',
+            // 'greeting',
             'totalItems',
             'totalUnits',
             'totalCategories',

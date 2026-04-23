@@ -9,7 +9,7 @@ use App\Http\Controllers\SumberDanaController;
 use App\Http\Controllers\ItemsUnitController;
 use App\Http\Controllers\LoansController;
 use App\Http\Controllers\AdminLoanController;
-use App\Http\Controllers\UserLoanController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -46,6 +46,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/loans', [AdminLoanController::class, 'index'])->name('loans.index');
             Route::get('/loans/{loan}', [AdminLoanController::class, 'show'])->name('loans.show');
+            
+            // Surat routes
+            Route::get('/loans/{loan}/download-surat', [AdminLoanController::class, 'downloadSurat'])->name('loans.download-surat');
+            Route::get('/loans/{loan}/view-surat', [AdminLoanController::class, 'viewSurat'])->name('loans.view-surat');
+            
             Route::post('/loans/{loan}/approve', [AdminLoanController::class, 'approve'])->name('loans.approve');
             Route::post('/loans/{loan}/reject', [AdminLoanController::class, 'reject'])->name('loans.reject');
             Route::post('/loans/{loan}/confirm-borrowed', [AdminLoanController::class, 'confirmBorrowed'])->name('loans.confirm-borrowed');
@@ -53,24 +58,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
             
             // Laporan
             Route::get('/reports/loans', [AdminLoanController::class, 'reports'])->name('reports.loans');
+
+            Route::resource('users', UserController::class);
+            
         });
     });
     
     // ========== ROUTES UNTUK USER ==========
     Route::middleware(['user'])->prefix('user')->name('user.')->group(function () {
-        Route::get('/loans/create', [LoansController::class, 'create'])->name('loans.create');
-        Route::post('/loans', [LoansController::class, 'store'])->name('loans.store');
-
-        // Daftar Alat
-        Route::get('/items', [UserLoanController::class, 'availableItems'])->name('items.index');
-        Route::get('/items/{item}', [UserLoanController::class, 'showItem'])->name('items.show');
+        // Daftar Barang
+        Route::get('/items', [LoansController::class, 'availableItems'])->name('items.index');
+        Route::get('/items/{item}', [LoansController::class, 'showItem'])->name('items.show');
         
-        // // Peminjaman
-        // Route::get('/loans/create', [UserLoanController::class, 'createLoan'])->name('loans.create');
-        // Route::post('/loans', [UserLoanController::class, 'storeLoan'])->name('loans.store');
-        Route::get('/loans/history', [UserLoanController::class, 'loanHistory'])->name('loans.history');
-        Route::get('/loans/{loan}', [UserLoanController::class, 'showLoan'])->name('loans.show');
-        Route::put('/loans/{loan}/cancel', [UserLoanController::class, 'cancelLoan'])->name('loans.cancel');
+        // Peminjaman (SEMUA menggunakan LoansController yang sudah digabung)
+        Route::get('/loans/create', [LoansController::class, 'createLoan'])->name('loans.create');
+        Route::post('/loans', [LoansController::class, 'storeLoan'])->name('loans.store');
+        Route::get('/loans/history', [LoansController::class, 'loanHistory'])->name('loans.history');
+        Route::get('/loans/{loan}', [LoansController::class, 'showLoan'])->name('loans.show');
+        Route::put('/loans/{loan}/cancel', [LoansController::class, 'cancelLoan'])->name('loans.cancel'); 
+        // Route::get('/loans/{loan}/print', [LoansController::class, 'printLoan'])->name('loans.print'); 
     });
     
 });

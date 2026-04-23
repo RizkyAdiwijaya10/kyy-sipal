@@ -13,6 +13,7 @@ class LoanDetail extends Model
     protected $fillable = [
         'loan_id',
         'item_unit_id',
+        'quantity',
         'condition_before',
         'condition_after',
         'notes',
@@ -21,6 +22,7 @@ class LoanDetail extends Model
     protected $casts = [
         'condition_before' => 'string',
         'condition_after' => 'string',
+        'quantity' => 'integer',
     ];
 
     public function loan()

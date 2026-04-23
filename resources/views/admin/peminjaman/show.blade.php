@@ -4,154 +4,159 @@
 
 @section('content')
 <div class="container py-4">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-semibold">Detail Peminjaman</h4>
-        <a href="{{ route('admin.loans.index') }}" class="btn btn-secondary btn-sm">
-            Kembali
-        </a>
-    </div>
-
-    <div class="row">
-
-        {{-- INFORMASI UTAMA --}}
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-body">
-
-                    <h5 class="mb-3">Informasi Peminjaman</h5>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <p><strong>Kode:</strong> {{ $loan->loan_code }}</p>
-                            <p><strong>Peminjam:</strong> {{ $loan->user->name }}</p>
-                            <p><strong>Tanggal Pinjam:</strong> 
-                                {{ $loan->loan_date->format('d M Y') }}
-                            </p>
-                            <p><strong>Tanggal Kembali:</strong> 
-                                {{ $loan->return_date->format('d M Y') }}
-                            </p>
-                        </div>
-
-                        <div class="col-md-6">
-                            <p><strong>Status:</strong>
-                                @switch($loan->status)
-                                    @case('pending')
-                                        <span class="badge bg-warning text-dark">Pending</span>
-                                        @break
-                                    @case('approved')
-                                        <span class="badge bg-primary">Disetujui</span>
-                                        @break
-                                    @case('borrowed')
-                                        <span class="badge bg-info text-dark">Dipinjam</span>
-                                        @break
-                                    @case('returned')
-                                        <span class="badge bg-success">Dikembalikan</span>
-                                        @break
-                                    @case('rejected')
-                                        <span class="badge bg-danger">Ditolak</span>
-                                        @break
-                                @endswitch
-                            </p>
-
-                            @if($loan->approved_at)
-                                <p><strong>Diproses Pada:</strong> 
-                                    {{ \Carbon\Carbon::parse($loan->approved_at)->format('d M Y H:i') }}
-                                </p>
-                            @endif
-
-                            @if($loan->approver)
-                                <p><strong>Diproses Oleh:</strong> 
-                                    {{ $loan->approver->name }}
-                                </p>
-                            @endif
-
-                            @if($loan->actual_return_date)
-                                <p><strong>Dikembalikan Pada:</strong> 
-                                    {{ \Carbon\Carbon::parse($loan->actual_return_date)->format('d M Y H:i') }}
-                                </p>
-                            @endif
-                        </div>
-                    </div>
-
-                </div>
-            </div> 
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white">
+            <h4 class="mb-0">Detail Peminjaman: {{ $loan->loan_code }}</h4>
         </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-
-                    <h6 class="fw-semibold mb-3">Timeline Status</h6>
-
-                    <ul class="list-unstyled">
-                        <li class="mb-2">
-                            ✔ Pengajuan dibuat
-                        </li>
-
-                        <li class="mb-2">
-                            {{ $loan->status != 'pending' ? '✔' : '○' }}
-                            Disetujui / Ditolak
-                        </li>
-
-                        <li class="mb-2">
-                            {{ in_array($loan->status, ['borrowed','returned']) ? '✔' : '○' }}
-                            Barang dipinjam
-                        </li>
-
-                        <li class="mb-2">
-                            {{ $loan->status == 'returned' ? '✔' : '○' }}
-                            Barang dikembalikan
-                        </li>
-                    </ul>
-
-                    @if($loan->status == 'borrowed' && $loan->return_date < now())
-                        <div class="alert alert-danger mt-3">
-                            ⚠ Terlambat Mengembalikan
-                        </div>
-                    @endif
-
+        <div class="card-body">
+            <!-- Informasi Peminjaman -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="150">Kode</th>
+                            <td>: {{ $loan->loan_code }}</td>
+                        </tr>
+                        <tr>
+                            <th>Peminjam</th>
+                            <td>: {{ $loan->user->name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td>: {{ $loan->user->email }}</td>
+                        </tr>
+                        <tr>
+                            <th>Tanggal Pinjam</th>
+                            <td>: {{ $loan->loan_date->format('d F Y') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Rencana Kembali</th>
+                            <td>: {{ $loan->return_date->format('d F Y') }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="150">Status</th>
+                            <td>: 
+                                @switch($loan->status)
+                                    @case('pending') <span class="badge bg-warning">Pending</span> @break
+                                    @case('approved') <span class="badge bg-primary">Disetujui</span> @break
+                                    @case('borrowed') <span class="badge bg-info">Dipinjam</span> @break
+                                    @case('returned') <span class="badge bg-success">Dikembalikan</span> @break
+                                    @case('rejected') <span class="badge bg-danger">Ditolak</span> @break
+                                @endswitch
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Tujuan</th>
+                            <td>: {{ $loan->purpose }}</td>
+                        </tr>
+                        @if($loan->actual_return_date)
+                        <tr>
+                            <th>Tgl Kembali</th>
+                            <td>: {{ $loan->actual_return_date->format('d F Y') }}</td>
+                        </tr>
+                        @endif
+                        @if($loan->approved_at)
+                        <tr>
+                            <th>Disetujui</th>
+                            <td>: {{ $loan->approved_at->format('d F Y H:i') }} oleh {{ $loan->approver->name ?? '-' }}</td>
+                        </tr>
+                        @endif
+                    </table>
                 </div>
             </div>
-        </div>
-        <div class="col-md-12">
-            {{-- DAFTAR UNIT --}}
-            <div class="card shadow-sm border-0">
+
+            <!-- Surat Peminjaman -->
+            @if($loan->notes)
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Surat Peminjaman</h5>
+                </div>
                 <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center">
+                                <i class="mdi mdi-file-pdf text-danger" style="font-size: 48px;"></i>
+                                <div class="ms-3">
+                                    <strong>{{ basename($loan->notes) }}</strong>
+                                    <br>
+                                    <small class="text-muted">Diupload: {{ $loan->created_at->format('d F Y H:i') }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <a href="{{ route('admin.loans.view-surat', $loan) }}" class="btn btn-primary" target="_blank">
+                                <i class="mdi mdi-eye"></i> Lihat Surat
+                            </a>
+                            <a href="{{ route('admin.loans.download-surat', $loan) }}" class="btn btn-success">
+                                <i class="mdi mdi-download"></i> Download
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
 
-                    <h5 class="mb-3">Daftar Unit Dipinjam</h5>
-
+            <!-- Daftar Barang -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Daftar Barang yang Dipinjam</h5>
+                </div>
+                <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table align-middle">
-                            <thead class="small text-muted border-bottom">
+                        <table class="table table-bordered">
+                            <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Nama Barang</th>
                                     <th>Kode Inventaris</th>
+                                    <th>Nama Barang</th>
                                     <th>Kondisi Awal</th>
-                                    <th>Kondisi Kembali</th>
-                                    <th>Status Unit</th>
+                                    <th>Kondisi Akhir</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($loan->details as $detail)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $detail->itemUnit->item->name ?? '-' }}</td>
                                     <td>{{ $detail->itemUnit->inventory_code ?? '-' }}</td>
-                                    <td>{{ $detail->condition_before ?? '-' }}</td>
-                                    <td>{{ $detail->condition_after ?? '-' }}</td>
+                                    <td>{{ $detail->itemUnit->item->name }}</td>
                                     <td>
-                                        <span class="badge bg-secondary">
-                                            {{ $detail->itemUnit->status }}
-                                        </span>
+                                        @if($detail->condition_before == 'baik')
+                                            <span class="badge bg-success">Baik</span>
+                                        @elseif($detail->condition_before == 'rusak')
+                                            <span class="badge bg-danger">Rusak</span>
+                                        @else
+                                            <span class="badge bg-warning">Maintenance</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($detail->condition_after)
+                                            @if($detail->condition_after == 'baik')
+                                                <span class="badge bg-success">Baik</span>
+                                            @elseif($detail->condition_after == 'rusak')
+                                                <span class="badge bg-danger">Rusak</span>
+                                            @else
+                                                <span class="badge bg-warning">Maintenance</span>
+                                            @endif
+                                        @else
+                                            <span class="badge bg-secondary">Belum dicek</span>
+                                        @endif
                                     </td>
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
-
                 </div>
+            </div>
+
+            <div class="mt-4">
+                <a href="{{ route('admin.loans.index') }}" class="btn btn-light">
+                    <i class="mdi mdi-arrow-left"></i> Kembali
+                </a>
             </div>
         </div>
     </div>

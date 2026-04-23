@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 
 @section('title', 'Data Barang')
 
@@ -140,7 +140,7 @@
                     </div>
                 </div>
                 <div class="modal fade" id="createItemModal" tabindex="-1">
-                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-dialog modal-l modal-dialog-centered">
                         <div class="modal-content">
                 
                             <form action="{{ route('items.store') }}" method="POST">
@@ -216,7 +216,7 @@
 
                 @foreach($items as $item)
                 <div class="modal fade" id="editModal{{ $item->id }}" tabindex="-1">
-                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-dialog modal-l modal-dialog-centered">
                         <div class="modal-content">
 
                             <form action="{{ route('items.update', $item) }}" method="POST">

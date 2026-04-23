@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 
 @section('title', 'Data Sumber Dana')
 
@@ -113,7 +113,7 @@
                             
                             <!-- EDIT MODAL - DILETAKKAN DI DALAM LOOP -->
                             <div class="modal fade" id="editSumberDanaModal{{ $sumberDana->id }}" tabindex="-1">
-                                <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-dialog modal-l modal-dialog-centered">
                                     <div class="modal-content">
                                         <form action="{{ route('sumber-dana.update', $sumberDana) }}" method="POST">
                                             @csrf

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Loan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class AdminLoanController extends Controller
@@ -16,7 +17,7 @@ class AdminLoanController extends Controller
     public function index(Request $request)
     {
         $status = $request->status;
-
+        
         $loans = Loan::with(['user', 'details.itemUnit.item'])
             ->when($status, fn($q) => $q->where('status', $status))
             ->latest()
@@ -42,6 +43,38 @@ class AdminLoanController extends Controller
         $loan->load(['user', 'details.itemUnit.item', 'approver']);
 
         return view('admin.peminjaman.show', compact('loan'));
+    }
+
+    /**
+     * Download surat peminjaman
+     */
+    public function downloadSurat(Loan $loan)
+    {
+        // Cek apakah file surat ada
+        if ($loan->notes && Storage::disk('public')->exists($loan->notes)) {
+            $fileName = 'surat_peminjaman_' . $loan->loan_code . '.pdf';
+            $filePath = Storage::disk('public')->path($loan->notes);
+            return response()->download($filePath, $fileName);
+        }
+        
+        return redirect()->back()->with('error', 'File surat tidak ditemukan');
+    }
+
+    /**
+     * View surat peminjaman (inline PDF)
+     */
+    public function viewSurat(Loan $loan)
+    {
+        if ($loan->notes && Storage::disk('public')->exists($loan->notes)) {
+            $file = Storage::disk('public')->get($loan->notes);
+            $mime = Storage::disk('public')->mimeType($loan->notes);
+            
+            return response($file, 200)
+                ->header('Content-Type', $mime)
+                ->header('Content-Disposition', 'inline; filename="surat_' . $loan->loan_code . '.pdf"');
+        }
+        
+        return redirect()->back()->with('error', 'File surat tidak ditemukan');
     }
 
     /**
@@ -73,6 +106,18 @@ class AdminLoanController extends Controller
      */
     public function reject(Request $request, Loan $loan)
     {
+        $validator = Validator::make($request->all(), [
+            'reject_reason' => 'required|string|max:255',
+        ], [
+            'reject_reason.required' => 'Alasan penolakan wajib diisi',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
         if ($loan->status !== 'pending') {
             return back()->with('error', 'Peminjaman sudah diproses');
         }
@@ -83,6 +128,7 @@ class AdminLoanController extends Controller
                 'status'       => 'rejected',
                 'approved_by'  => auth()->id(),
                 'approved_at'  => now(),
+                'notes'        => $request->reject_reason, // Simpan alasan penolakan
             ]);
 
             // Kembalikan unit jadi tersedia
@@ -128,35 +174,46 @@ class AdminLoanController extends Controller
     /**
      * Pengembalian barang
      */
-    public function returnItems(Loan $loan)
-{
-    if ($loan->status !== 'borrowed') {
-        return back()->with('error', 'Barang belum dipinjam');
-    }
-
-    DB::transaction(function () use ($loan) {
-
-        foreach ($loan->details as $detail) {
-
-            $detail->update([
-                'condition_after' => 'baik',
-            ]);
-
-            $detail->itemUnit->update([
-                'status'    => 'tersedia',
-                'condition' => 'baik',
-            ]);
+    public function returnItems(Request $request, Loan $loan)
+    {
+        if ($loan->status !== 'borrowed') {
+            return back()->with('error', 'Barang belum dipinjam');
         }
 
-        $loan->update([
-            'status'             => 'returned',
-            'actual_return_date' => now(),
+        $validator = Validator::make($request->all(), [
+            'return_notes' => 'nullable|string|max:500',
         ]);
-    });
 
-    return redirect()->route('admin.loans.index')
-        ->with('success', 'Barang berhasil dikembalikan');
-}
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        DB::transaction(function () use ($loan, $request) {
+
+            foreach ($loan->details as $detail) {
+                // Simpan kondisi setelah pengembalian (bisa diisi admin)
+                $detail->update([
+                    'condition_after' => $request->condition_after ?? 'baik',
+                ]);
+
+                $detail->itemUnit->update([
+                    'status'    => 'tersedia',
+                    'condition' => $request->condition_after ?? 'baik',
+                ]);
+            }
+
+            $loan->update([
+                'status'             => 'returned',
+                'actual_return_date' => now(),
+                'notes'              => $request->return_notes ?: $loan->notes,
+            ]);
+        });
+
+        return redirect()->route('admin.loans.index')
+            ->with('success', 'Barang berhasil dikembalikan');
+    }
 
     /**
      * Laporan
@@ -191,6 +248,6 @@ class AdminLoanController extends Controller
             })->count(),
         ];
 
-        return view('admin.loans.reports', compact('loans', 'summary'));
+        return view('admin.peminjaman.reports', compact('loans', 'summary'));
     }
 }

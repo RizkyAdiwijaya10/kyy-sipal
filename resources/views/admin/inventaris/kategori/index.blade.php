@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 
 @section('title', 'Data Kategori')
 
@@ -114,7 +114,7 @@
                             
                             <!-- EDIT MODAL - DILETAKKAN DI DALAM LOOP (SAMA SEPERTI POLA ITEMS) -->
                             <div class="modal fade" id="editCategoryModal{{ $category->id }}" tabindex="-1">
-                                <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-dialog modal-l modal-dialog-centered">
                                     <div class="modal-content">
                                         <form action="{{ route('categories.update', $category) }}" method="POST">
                                             @csrf
@@ -173,7 +173,7 @@
                 
                 <!-- CREATE MODAL - DI LUAR LOOP (HANYA SATU) -->
                 <div class="modal fade" id="createCategoryModal" tabindex="-1">
-                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-dialog modal-l modal-dialog-centered">
                         <div class="modal-content">
                             <form action="{{ route('categories.store') }}" method="POST">
                                 @csrf

@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 
 @section('title', 'Data Unit Barang')
 
@@ -172,7 +172,7 @@
                 </div>
                 <!-- Modal Create -->
                 <div class="modal fade" id="createUnitModal" tabindex="-1">
-                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-dialog modal-l modal-dialog-centered">
                         <div class="modal-content">
                             <form method="POST" action="{{ route('item-units.store') }}">
                                 @csrf
@@ -238,7 +238,7 @@
                 </div>
                 @foreach($itemUnits as $unit)
                 <div class="modal fade" id="editUnitModal{{ $unit->id }}" tabindex="-1">
-                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-dialog modal-l modal-dialog-centered">
                         <div class="modal-content">
                             <form method="POST" action="{{ route('item-units.update', $unit->id) }}">
                                 @csrf

@@ -15,23 +15,7 @@ class UserLoanController extends Controller
     /**
      * Daftar barang tersedia
      */
-    public function availableItems()
-    {
-        $items = Item::with([
-            'category',
-            'itemUnits' => function ($q) {
-                $q->where('status', 'tersedia')
-                  ->where('condition', 'baik');
-            }
-        ])
-        ->whereHas('itemUnits', function ($q) {
-            $q->where('status', 'tersedia')
-              ->where('condition', 'baik');
-        })
-        ->get();
-
-        return view('user.item.index', compact('items'));
-    }
+    
 
     /**
      * Detail barang

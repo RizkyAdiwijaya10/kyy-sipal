@@ -2,10 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\categories;
 use Illuminate\Database\Seeder;
 use App\Models\Category;
-use App\Models\FundingSource;
 use App\Models\Item;
 use App\Models\ItemUnit;
 use App\Models\SumberDana;
@@ -20,9 +18,9 @@ class InventorySeeder extends Seeder
             // ================================
             // CATEGORY
             // ================================
-            $alatLab = categories::firstOrCreate(['name' => 'ALAT LAB']);
-            $elektronik = categories::firstOrCreate(['name' => 'ELEKTRONIK']);
-            $meubeler = categories::firstOrCreate(['name' => 'MEUBELER']);
+            $alatLab = Category::firstOrCreate(['name' => 'ALAT LAB']);
+            $elektronik = Category::firstOrCreate(['name' => 'ELEKTRONIK']);
+            $meubeler = Category::firstOrCreate(['name' => 'MEUBELER']);
 
             $funding = SumberDana::firstOrCreate([
                 'name' => 'APBN/APBD'
