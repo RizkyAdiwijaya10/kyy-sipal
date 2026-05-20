@@ -80,7 +80,7 @@
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#editSumberDanaModal{{ $sumberDana->id }}"
                                                 title="Edit">
-                                            <i class="mdi mdi-pencil"></i>
+                                            <i class="mdi mdi-pencil"></i> Edit
                                         </button>
                                         
                                         <!-- DELETE -->
@@ -98,13 +98,13 @@
                                                             'delete-sumber-dana-{{ $sumberDana->id }}',
                                                             'Sumber dana {{ $sumberDana->name }} akan dihapus secara permanen'
                                                         )">
-                                                    <i class="mdi mdi-delete"></i>
+                                                    <i class="mdi mdi-delete"></i> Hapus
                                                 </button>
                                             </form>
                                         @else
                                             <span class="btn btn-secondary btn-sm btn-icon disabled"
                                                   title="Tidak dapat dihapus (memiliki {{ $sumberDana->items_count }} barang)">
-                                                <i class="mdi mdi-delete"></i>
+                                                <i class="mdi mdi-delete"></i> Hapus
                                             </span>
                                         @endif
                                     </div>

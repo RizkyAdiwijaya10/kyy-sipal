@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('title', 'Manajemen Peminjaman')
+@section('page-title', 'Manajemen Peminjaman')
+@section('page-subtitle', 'Kelola pengajuan peminjaman alat')
 
 @section('content')
 <div class="container">
@@ -18,83 +20,82 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
-    
-    @if($errors->any())
-    <div class="alert alert-danger">
-        <ul class="mb-0">
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
 
     {{-- STATISTIK CARD --}}
     <div class="row mb-4">
-        <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card bg-warning text-white">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h3 class="card-title text-white">{{ $stats['pending'] }}</h3>
-                            <p class="card-text">Pending</p>
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Pending
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['pending'] }}</div>
                         </div>
-                        <div class="align-self-center">
-                            <i class="mdi mdi-clock-outline mdi-36px"></i>
+                        <div class="col-auto">
+                            <i class="mdi mdi-clock-outline fa-2x text-warning"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card bg-primary text-white">
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h3 class="card-title text-white">{{ $stats['approved'] }}</h3>
-                            <p class="card-text">Disetujui</p>
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Disetujui
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['approved'] }}</div>
                         </div>
-                        <div class="align-self-center">
-                            <i class="mdi mdi-check-circle-outline mdi-36px"></i>
+                        <div class="col-auto">
+                            <i class="mdi mdi-check-circle-outline fa-2x text-primary"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card bg-info text-white">
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h3 class="card-title text-white">{{ $stats['borrowed'] }}</h3>
-                            <p class="card-text">Dipinjam</p>
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Dipinjam
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['borrowed'] }}</div>
                         </div>
-                        <div class="align-self-center">
-                            <i class="mdi mdi-bookmark-outline mdi-36px"></i>
+                        <div class="col-auto">
+                            <i class="mdi mdi-bookmark-outline fa-2x text-info"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card bg-danger text-white">
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h3 class="card-title text-white">{{ $stats['overdue'] }}</h3>
-                            <p class="card-text">Overdue</p>
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Overdue
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['overdue'] }}</div>
                         </div>
-                        <div class="align-self-center">
-                            <i class="mdi mdi-alert-circle-outline mdi-36px"></i>
+                        <div class="col-auto">
+                            <i class="mdi mdi-alert-circle-outline fa-2x text-danger"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 
     <div class="card shadow-sm border-0">
         <div class="card-body">
@@ -103,7 +104,7 @@
             <div class="row mb-4">
                 <div class="col-md-2">
                     <div class="dropdown">
-                        <button class="btn btn-outline-primary dropdown-toggle w-20" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             @php
                                 $statusLabels = [
                                     null => 'Semua Status',
@@ -118,11 +119,11 @@
                             @endphp
                             {{ $buttonLabel }}
                         </button>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu w-100">
                             <li>
                                 <a class="dropdown-item {{ !request('status') ? 'active' : '' }}" 
                                    href="{{ route('admin.loans.index') }}">
-                                    <i class="mdi mdi-view-dashboard"></i> Semua Status
+                                    <i class="mdi mdi-view-dashboard me-2"></i> Semua Status
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
@@ -159,14 +160,6 @@
                         </ul>
                     </div>
                 </div>
-                
-                {{-- <div class="col-md-8">
-                    <div class="text-end">
-                        <small class="text-muted">
-                            Total data: {{ $loans->total() }} peminjaman
-                        </small>
-                    </div>
-                </div> --}}
             </div>
 
             {{-- TABLE --}}
@@ -180,7 +173,7 @@
                             <th>Tanggal Kembali</th>
                             <th>Barang</th>
                             <th>Status</th>
-                            <th width="20%">Aksi</th>
+                            <th width="25%">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -199,7 +192,7 @@
                                 @endif
                             </td>
                             <td>
-                                <span class="badge bg-secondary">
+                                <span>
                                     {{ $loan->details->count() }} barang
                                 </span>
                             </td>
@@ -208,36 +201,36 @@
                             <td>
                                 @switch($loan->status)
                                     @case('pending')
-                                        <span class="badge bg-warning text-dark">Pending</span>
+                                        <span>Pending</span>
                                         @break
                                     @case('approved')
-                                        <span class="badge bg-primary">Disetujui</span>
+                                        <span>Disetujui</span>
                                         @break
                                     @case('borrowed')
-                                        <span class="badge bg-info text-dark">Dipinjam</span>
+                                        <span>Dipinjam</span>
                                         @break
                                     @case('returned')
-                                        <span class="badge bg-success">Dikembalikan</span>
+                                        <span>Dikembalikan</span>
                                         @break
                                     @case('rejected')
-                                        <span class="badge bg-danger">Ditolak</span>
+                                        <span>Ditolak</span>
                                         @break
                                     @default
-                                        <span class="badge bg-secondary">{{ $loan->status }}</span>
+                                        <span>{{ $loan->status }}</span>
                                 @endswitch
                             </td>
 
                             {{-- AKSI --}}
                             <td>
-                                <div class="btn-group btn-group-sm" role="group">
+                                <div class="d-flex gap-1 flex-wrap">
                                     @if($loan->status == 'pending')
-                                        <button type="button" class="btn btn-success" 
+                                        <button type="button" class="btn btn-success btn-sm" 
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#approveModal{{ $loan->id }}">
                                             <i class="mdi mdi-check"></i> Setujui
                                         </button>
 
-                                        <button type="button" class="btn btn-danger" 
+                                        <button type="button" class="btn btn-danger btn-sm" 
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#rejectModal{{ $loan->id }}">
                                             <i class="mdi mdi-close"></i> Tolak
@@ -245,25 +238,18 @@
                                     @endif
 
                                     @if($loan->status == 'approved')
-                                        <button type="button" class="btn btn-primary" 
+                                        <button type="button" class="btn btn-primary btn-sm" 
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#confirmBorrowedModal{{ $loan->id }}">
                                             <i class="mdi mdi-bookmark"></i> Konfirmasi
                                         </button>
                                     @endif
 
-                                    @if($loan->status == 'borrowed')
-                                        <button type="button" class="btn btn-warning" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#returnModal{{ $loan->id }}">
-                                            <i class="mdi mdi-undo"></i> Kembali
-                                        </button>
-                                    @endif
-
-                                    <a href="{{ route('admin.loans.show', $loan) }}"
-                                       class="btn btn-outline-secondary">
+                                    {{-- TOMBOL DETAIL - BUKA MODAL --}}
+                                    <button type="button" class="btn btn-info btn-sm" 
+                                            onclick="showDetailModal({{ $loan->id }})">
                                         <i class="mdi mdi-eye"></i> Detail
-                                    </a>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -274,13 +260,12 @@
                                 <div class="modal-content">
                                     <form method="POST" action="{{ route('admin.loans.approve', $loan) }}">
                                         @csrf
-                                        <div class="modal-header bg-success text-white">
+                                        <div class="modal-header bg-gradient-cyan text-white">
                                             <h5 class="modal-title">Setujui Peminjaman</h5>
                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                         </div>
                                         <div class="modal-body">
                                             <div class="alert alert-info">
-                                                <i class="mdi mdi-information-outline me-2"></i>
                                                 <strong>Kode:</strong> {{ $loan->loan_code }}<br>
                                                 <strong>Peminjam:</strong> {{ $loan->user->name }}<br>
                                                 <strong>Jumlah Barang:</strong> {{ $loan->details->count() }} item<br>
@@ -304,7 +289,7 @@
                                 <div class="modal-content">
                                     <form method="POST" action="{{ route('admin.loans.reject', $loan) }}">
                                         @csrf
-                                        <div class="modal-header bg-danger text-white">
+                                        <div class="modal-header bg-gradient-orange text-white">
                                             <h5 class="modal-title">Tolak Peminjaman</h5>
                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                         </div>
@@ -315,7 +300,7 @@
                                                 <strong>Peminjam:</strong> {{ $loan->user->name }}
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">Alasan Penolakan <span class="text-danger">*</span></label>
+                                                <label class="form-label">Alasan Penolakan <span class="text-danger"></span></label>
                                                 <textarea name="reject_reason" class="form-control" rows="3" placeholder="Masukkan alasan penolakan..." required></textarea>
                                             </div>
                                         </div>
@@ -334,7 +319,7 @@
                                 <div class="modal-content">
                                     <form method="POST" action="{{ route('admin.loans.confirm-borrowed', $loan) }}">
                                         @csrf
-                                        <div class="modal-header bg-primary text-white">
+                                        <div class="modal-header bg-gradient-cyan text-white">
                                             <h5 class="modal-title">Konfirmasi Pengambilan Barang</h5>
                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                         </div>
@@ -366,7 +351,7 @@
                                 <div class="modal-content">
                                     <form method="POST" action="{{ route('admin.loans.return', $loan) }}">
                                         @csrf
-                                        <div class="modal-header bg-warning text-dark">
+                                        <div class="modal-header bg-gradient-warning text-dark">
                                             <h5 class="modal-title">Konfirmasi Pengembalian Barang</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                         </div>
@@ -379,7 +364,7 @@
                                             </div>
                                             
                                             <div class="mb-3">
-                                                <label class="form-label">Kondisi Barang <span class="text-danger">*</span></label>
+                                                <label class="form-label">Kondisi Barang <span class="text-danger"></span></label>
                                                 <select name="condition_after" class="form-control" required>
                                                     <option value="baik">Baik</option>
                                                     <option value="maintenance">Maintenance</option>
@@ -423,4 +408,198 @@
         </div>
     </div>
 </div>
+
+{{-- MODAL DETAIL PEMINJAMAN --}}
+<div class="modal fade" id="detailModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header" id="detailModalHeader">
+                <h5 class="modal-title">
+                    <i class="mdi mdi-information-outline me-2"></i>
+                    Detail Peminjaman
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detailModalBody">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Memuat data...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="mdi mdi-close"></i> Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+function showDetailModal(loanId) {
+    // Tampilkan modal dengan loading
+    const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+    const modalBody = document.getElementById('detailModalBody');
+    
+    // Set loading state
+    modalBody.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Memuat detail peminjaman...</p>
+        </div>
+    `;
+    
+    modal.show();
+    
+    // Fetch data via AJAX
+    fetch(`{{ url('admin/loans') }}/${loanId}/json`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const d = data.data;
+                
+                // Build detail HTML
+                let detailsHtml = '';
+                d.details.forEach((detail, index) => {
+                    detailsHtml += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${detail.inventory_code}</td>
+                            <td>${detail.item_name}</td>
+                            <td>${detail.condition_before_badge}</td>
+                            <td>${detail.condition_after_badge}</td>
+                        </tr>
+                    `;
+                });
+                
+                // Surat HTML
+                let suratHtml = '';
+                if (d.notes && d.notes !== 'null') {
+                    suratHtml = `
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Surat Peminjaman</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <div class="d-flex align-items-center">
+                                            <i class="mdi mdi-file-pdf text-danger" style="font-size: 48px;"></i>
+                                            <div class="ms-3">
+                                                <strong>${d.notes.split('/').pop()}</strong>
+                                                <br>
+                                                <small class="text-muted">Diupload: ${d.created_at}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <a href="{{ url('admin/loans') }}/${loanId}/view-surat" class="btn btn-primary btn-sm" target="_blank">
+                                            <i class="mdi mdi-eye"></i> Lihat
+                                        </a>
+                                        <a href="{{ url('admin/loans') }}/${loanId}/download-surat" class="btn btn-success btn-sm">
+                                            <i class="mdi mdi-download"></i> Download
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                modalBody.innerHTML = `
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <table class="table table-sm table-borderless">
+                                        <tr><th>Kode</th><td>: ${d.loan_code}</td></tr>
+                                        <tr><th>Peminjam</th><td>: ${d.user_name}</td></tr>
+                                        <tr><th>Email</th><td>: ${d.user_email}</td></tr>
+                                        <tr><th>Tanggal Pinjam</th><td>: ${d.loan_date}</td></tr>
+                                        <tr><th>Rencana Kembali</th><td>: ${d.return_date}</td></tr>
+                                        <tr><th>Tanggal Kembali</th><td>: ${d.actual_return_date || '-'}</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <table class="table table-sm table-borderless">
+                                        <tr><th>Status</th><td>: ${d.status_badge}</td></tr>
+                                        <tr><th>Tujuan</th><td>: ${d.purpose}</td></tr>
+                                        <tr><th>Disetujui</th><td>: ${d.approved_at || '-'}</td></tr>
+                                        <tr><th>Oleh</th><td>: ${d.approver_name || '-'}</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${suratHtml}
+                    
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Daftar Barang yang Dipinjam</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Kode Inventaris</th>
+                                            <th>Nama Barang</th>
+                                            <th>Kondisi Awal</th>
+                                            <th>Kondisi Akhir</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${detailsHtml || '<tr><td colspan="5" class="text-center">Tidak ada data barang</td></tr>'}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                modalBody.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="mdi mdi-alert-circle me-2"></i>
+                        Gagal memuat data detail peminjaman.
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            modalBody.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="mdi mdi-alert-circle me-2"></i>
+                    Terjadi kesalahan saat memuat data.
+                </div>
+            `;
+        });
+}
+</script>
+@endpush
+
+@push('styles')
+{{-- <style>
+.modal-lg {
+    max-width: 900px;
+}
+.table-borderless td, .table-borderless th {
+    padding: 0.3rem 0;
+}
+.card-header {
+    background-color: #f8f9fc;
+} --}}
+</style>
+@endpush
 @endsection

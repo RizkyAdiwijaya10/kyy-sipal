@@ -20727,6 +20727,22 @@ input:focus {
   background: linear-gradient(to right, #7d7979 0%, #000000 100%);
 }
 
+.bg-gradient-cyan {
+    background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%);
+}
+
+.bg-gradient-orange {
+    background: linear-gradient(135deg, #f83600 0%, #f9d423 100%);
+}
+
+.bg-gradient-teal {
+    background: linear-gradient(135deg, #00c6fb 0%, #005bea 100%);
+}
+
+.bg-gradient-purple {
+    background: linear-gradient(135deg, #9d4edd 0%, #5a189a 100%);
+}
+
 .bg-opacity-primary {
   background: rgba(31, 59, 179, 0.12);
   padding: 20px;

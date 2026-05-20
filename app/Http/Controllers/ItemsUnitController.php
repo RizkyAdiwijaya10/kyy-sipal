@@ -36,12 +36,12 @@ class ItemsUnitController extends Controller
         $statuses = ['tersedia', 'dipinjam', 'dipesan', 'nonaktif'];
         $conditions = ['baik', 'rusak', 'maintenance', 'hilang'];
         
-        return view('admin.inventaris.satuan.index', compact('itemUnits', 'items', 'statuses', 'conditions'));
+        return view('admin.inventaris.unit.index', compact('itemUnits', 'items', 'statuses', 'conditions'));
     }
     // {
     //     $itemUnits = ItemUnit::paginate(10);
 
-    //     return view('inventaris.satuan.index', [
+    //     return view('inventaris.unit.index', [
     //         'itemUnits' => $itemUnits,
     //         'items' => [],
     //         'statuses' => [],
@@ -80,7 +80,7 @@ class ItemsUnitController extends Controller
             $inventoryCode = 'INV-' . $itemCode . '-' . str_pad($count, 3, '0', STR_PAD_LEFT);
         }
         
-        return view('admin.inventaris.satuan.create', compact('items', 'selectedItemId', 'statuses', 'conditions', 'inventoryCode'));
+        return view('admin.inventaris.unit.create', compact('items', 'selectedItemId', 'statuses', 'conditions', 'inventoryCode'));
     }
 
     /**
@@ -132,7 +132,7 @@ class ItemsUnitController extends Controller
     {
         $itemUnit->load('item.category', 'item.fundingSource');
         
-        return view('admin.inventaris.satuan.show', compact('itemUnit'));
+        return view('admin.inventaris.unit.show', compact('itemUnit'));
     }
 
     /**
@@ -156,7 +156,7 @@ class ItemsUnitController extends Controller
             'hilang' => 'Hilang'
         ];
         
-        return view('admin.inventaris.satuan.edit', compact('itemUnit', 'items', 'statuses', 'conditions'));
+        return view('admin.inventaris.unit.edit', compact('itemUnit', 'items', 'statuses', 'conditions'));
     }
 
     /**

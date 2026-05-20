@@ -137,21 +137,37 @@
             <li class="nav-item nav-category">PEMINJAMAN</li>
 
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.loans.index') && !request()->has('status') ? 'active' : '' }}"
+                <a class="nav-link {{ request()->routeIs('admin.loans.index') && !request()->has('type') ? 'active' : '' }}"
                   href="{{ route('admin.loans.index') }}">
                     <i class="mdi mdi-clipboard-text-outline menu-icon"></i>
-                    <span class="menu-title">Pengajuan</span>
+                    <span class="menu-title">Peminjaman</span>
                     @php
-                        $pendingCount = \App\Models\Loan::where('status', 'pending')->count();
+                        $pendingLoanCount = \App\Models\Loan::where('status', 'pending')->count();
+
                     @endphp
-                    @if($pendingCount > 0)
-                    <span class="badge bg-danger ms-auto">{{ $pendingCount }}</span>
+                    @if($pendingLoanCount > 0)
+                    <span class="badge bg-danger ms-auto">{{ $pendingLoanCount }}</span>
                     @endif
                 </a>
             </li>
 
-            <!-- ADMIN LAINNYA -->
-            <li class="nav-item nav-category">ADMINISTRASI</li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.loans.return-requests*') ? 'active' : '' }}"
+                  href="{{ route('admin.loans.return-requests') }}">
+                    <i class="mdi mdi-backup-restore menu-icon"></i>
+                    <span class="menu-title">Pengembalian</span>
+                    @php
+                        $pendingReturnCount = \App\Models\Loan::whereNotNull('return_requested_at')
+                            ->where('return_request_status', 'pending')
+                            ->count();
+                    @endphp
+                    @if($pendingReturnCount > 0)
+                    <span class="badge bg-danger ms-auto">{{ $pendingReturnCount }}</span>
+                    @endif
+                </a>
+            </li>
+
+            <li class="nav-item nav-category">MANAJEMEN</li>
 
             <li class="nav-item">
                 <a class="nav-link" href="{{route('admin.users.index')}}">
@@ -188,6 +204,22 @@
                     <span class="menu-title">Ajukan Peminjaman</span>
                 </a>
             </li>
+            {{-- <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('user.returns.*') ? 'active' : '' }}"
+                  href="{{ route('user.returns.index') }}">
+                    <i class="mdi mdi-backup-restore menu-icon"></i>
+                    <span class="menu-title">Pengembalian</span>
+                    @php
+                        $pendingReturnCount = \App\Models\Loan::where('user_id', Auth::id())
+                            ->where('return_request_status', 'pending')
+                            ->whereNotNull('return_requested_at')
+                            ->count();
+                    @endphp
+                    @if($pendingReturnCount > 0)
+                    <span class="badge bg-warning ms-auto">{{ $pendingReturnCount }}</span>
+                    @endif
+                </a>
+            </li> --}}
 
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('user.loans.history') ? 'active' : '' }}"
@@ -208,7 +240,7 @@
             @endif
 
             <!-- UMUM -->
-            <li class="nav-item nav-category">UMUM</li>
+            <li class="nav-item nav-category">PROFIL</li>
 
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}" href="{{ route('profile.edit') }}">
@@ -244,97 +276,47 @@
     <script src="{{ asset('assets/js/jquery.cookie.js') }}"></script>
     <script src="{{ asset('assets/js/dashboard.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <script>
-      const swalWithBootstrapButtons = Swal.mixin({
-          customClass: {
-              confirmButton: "btn btn-danger ms-2",
-              cancelButton: "btn btn-primary"
-          },
-          buttonsStyling: false
-      });
-      
-      // ✅ Confirm Delete
-      function confirmDelete(formId, customText = 'Data ini akan dihapus permanen!') {
-          swalWithBootstrapButtons.fire({
-              title: "Apakah Anda yakin?",
-              text: customText,
-              icon: "warning",
-              showCancelButton: true,
-              cancelButtonText: "Batal",
-              confirmButtonText: "Hapus",
-              reverseButtons: true
-          }).then((result) => {
-              if (result.isConfirmed) {
-      
-                  Swal.fire({
-                      title: 'Menghapus...',
-                      text: 'Mohon tunggu',
-                      allowOutsideClick: false,
-                      allowEscapeKey: false,
-                      showConfirmButton: false,
-                      didOpen: () => {
-                          Swal.showLoading();
-                      }
-                  });
-      
-                  document.getElementById(formId).submit();
-              }
-          });
-      }
-      
-      // ✅ Success Alert
-      @if(session('success'))
-      Swal.fire({
-          icon: 'success',
-          title: 'Berhasil',
-          text: '{{ session('success') }}',
-          showConfirmButton: false,
-          timer: 2000
-      });
-      @endif
-      
-      // ✅ Error Alert
-      @if(session('error'))
-      Swal.fire({
-          icon: 'error',
-          title: 'Gagal',
-          text: '{{ session('error') }}',
-      });
-      @endif
-      
-      document.querySelectorAll('form').forEach(form => {
+    <script src="{{ asset('assets/js/alert.js') }}"></script>
+   
 
-      // skip delete form
-      if (form.id && form.id.startsWith('delete-')) return;
-
-      form.addEventListener('submit', function () {
-
-          Swal.fire({
-              title: 'Memproses...',
-              html: `
-                  <div style="display:flex; flex-direction:column; align-items:center; gap:15px;">
-                      <div class="dot-spinner">
-                          <div class="dot-spinner__dot"></div>
-                          <div class="dot-spinner__dot"></div>
-                          <div class="dot-spinner__dot"></div>
-                          <div class="dot-spinner__dot"></div>
-                          <div class="dot-spinner__dot"></div>
-                          <div class="dot-spinner__dot"></div>
-                          <div class="dot-spinner__dot"></div>
-                          <div class="dot-spinner__dot"></div>
-                      </div>
-                      <span>Mohon tunggu...</span>
-                  </div>
-              `,
-              allowOutsideClick: false,
-              allowEscapeKey: false,
-              showConfirmButton: false,
-          });
-
-      });
-
-      });      
+     <script>
+        // ✅ Success Alert
+        @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: '{{ session('success') }}',
+            showConfirmButton: false,
+            timer: 2000
+        });
+        @endif
+        
+        // ✅ Error Alert
+        @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal',
+            text: '{{ session('error') }}',
+        });
+        @endif
+        
+        // ✅ Warning Alert
+        @if(session('warning'))
+        Swal.fire({
+            icon: 'warning',
+            title: 'Peringatan',
+            text: '{{ session('warning') }}',
+        });
+        @endif
+        
+        // ✅ Info Alert
+        @if(session('info'))
+        Swal.fire({
+            icon: 'info',
+            title: 'Informasi',
+            text: '{{ session('info') }}',
+        });
+        @endif
     </script>
     @stack('scripts')
   </body>

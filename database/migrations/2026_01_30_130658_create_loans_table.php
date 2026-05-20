@@ -19,10 +19,15 @@ return new class extends Migration
             $table->date('return_date'); // Tanggal rencana kembali
             $table->date('actual_return_date')->nullable(); // Tanggal kembali sebenarnya
             $table->text('purpose')->nullable(); // Tujuan peminjaman
-            $table->enum('status', ['pending', 'approved', 'rejected', 'borrowed', 'returned', 'overdue'])->default('pending');
+            $table->enum('status', ['pending', 'approved', 'rejected', 'borrowed', 'returned', 'overdue', 'cancelled'])->default('pending');
             $table->text('notes')->nullable(); // Catatan admin
             $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete(); // Disetujui oleh
             $table->timestamp('approved_at')->nullable();
+            $table->timestamp('return_requested_at')->nullable(); // Waktu pengajuan pengembalian
+            $table->text('return_request_notes')->nullable(); // Catatan pengajuan pengembalian
+            $table->enum('return_request_status', ['pending', 'approved', 'rejected'])->nullable(); // Status pengajuan pengembalian
+            $table->foreignId('return_approved_by')->nullable()->constrained('users')->nullOnDelete(); // Approver pengembalian
+            $table->timestamp('return_approved_at')->nullable();
             $table->timestamps();
         });
         

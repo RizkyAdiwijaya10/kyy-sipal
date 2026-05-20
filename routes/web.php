@@ -55,11 +55,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/loans/{loan}/reject', [AdminLoanController::class, 'reject'])->name('loans.reject');
             Route::post('/loans/{loan}/confirm-borrowed', [AdminLoanController::class, 'confirmBorrowed'])->name('loans.confirm-borrowed');
             Route::post('/loans/{loan}/return', [AdminLoanController::class, 'returnItems'])->name('loans.return');
-            
+             Route::get('/loans/{loan}/json', [AdminLoanController::class, 'getDetailJson'])->name('loans.json');
             // Laporan
-            Route::get('/reports/loans', [AdminLoanController::class, 'reports'])->name('reports.loans');
+            Route::get('/reports', [AdminLoanController::class, 'reports'])->name('reports.loans');
+            Route::get('/reports/print', [AdminLoanController::class, 'printReport'])->name('reports.print');
 
             Route::resource('users', UserController::class);
+
+            Route::get('/return-requests', [AdminLoanController::class, 'returnRequests'])->name('loans.return-requests');
+            Route::get('/return-requests/{loan}', [AdminLoanController::class, 'showReturnRequest'])->name('loans.return-request.show');
+            Route::post('/return-requests/{loan}/approve', [AdminLoanController::class, 'approveReturnRequest'])->name('loans.return-request.approve');
+            Route::post('/return-requests/{loan}/reject', [AdminLoanController::class, 'rejectReturnRequest'])->name('loans.return-request.reject');
             
         });
     });
@@ -77,6 +83,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/loans/{loan}', [LoansController::class, 'showLoan'])->name('loans.show');
         Route::put('/loans/{loan}/cancel', [LoansController::class, 'cancelLoan'])->name('loans.cancel'); 
         // Route::get('/loans/{loan}/print', [LoansController::class, 'printLoan'])->name('loans.print'); 
+
+
+        Route::get('/returns', [LoansController::class, 'returnIndex'])->name('returns.index');
+        Route::get('/returns/{loan}/create', [LoansController::class, 'returnCreate'])->name('returns.create');
+        Route::post('/returns/{loan}', [LoansController::class, 'returnStore'])->name('returns.store');
+        Route::get('/returns/{loan}', [LoansController::class, 'returnShow'])->name('returns.show');
+        Route::delete('/returns/{loan}', [LoansController::class, 'returnCancel'])->name('returns.cancel');
+        Route::get('/loans/{loan}/json', [LoansController::class, 'getDetailJson'])->name('loans.json');
+
+        // Route::get('/loans/return-requests', [LoansController::class, 'returnRequests'])->name('loans.return-requests');
+        // Route::get('/loans/{loan}/return-request', [LoansController::class, 'createReturnRequest'])->name('loans.return-request.create');
+        // Route::post('/loans/{loan}/return-request', [LoansController::class, 'storeReturnRequest'])->name('loans.return-request.store');
+        // Route::get('/loans/{loan}/return-request/show', [LoansController::class, 'showReturnRequest'])->name('loans.return-request.show');
+        // Route::delete('/loans/{loan}/return-request', [LoansController::class, 'cancelReturnRequest'])->name('loans.return-request.cancel');
     });
     
 });

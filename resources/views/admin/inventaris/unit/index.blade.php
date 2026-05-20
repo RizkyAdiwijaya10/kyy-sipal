@@ -127,7 +127,7 @@
                                         <button class="btn btn-warning btn-sm btn-icon"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#editUnitModal{{ $unit->id }}">
-                                            <i class="mdi mdi-pencil"></i>
+                                            <i class="mdi mdi-pencil"></i> Edit   
                                         </button>
                                         
                                         @if($unit->status != 'dipinjam')
@@ -145,14 +145,14 @@
                                                         'delete-unit-{{ $unit->id }}',
                                                         'Unit barang {{ $unit->inventory_code ?? '' }} akan dihapus secara permanen'
                                                     )">
-                                                <i class="mdi mdi-delete"></i>
+                                                <i class="mdi mdi-delete"></i> Hapus
                                             </button>
                                         </form>
                                         @else
                                         <span class="btn btn-secondary btn-sm btn-icon disabled"
                                               title="Tidak dapat dihapus (sedang dipinjam)">
-                                            <i class="mdi mdi-delete"></i>
-                                        </span>
+                                            <i class="mdi mdi-delete"></i> Hapus
+                                        </span> 
                                         @endif
                                         
                                     </div>

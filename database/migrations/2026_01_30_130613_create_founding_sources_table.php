@@ -11,9 +11,9 @@ return new class extends Migration
     {
         Schema::create('funding_sources', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // Nama sumber dana
-            $table->string('code')->nullable(); // Kode anggaran
-            $table->integer('year')->nullable(); // Tahun anggaran
+            $table->string('name'); 
+            $table->string('code')->nullable(); 
+            $table->integer('year')->nullable(); 
             $table->text('description')->nullable();
             $table->timestamps();
         });

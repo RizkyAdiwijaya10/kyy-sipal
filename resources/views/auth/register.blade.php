@@ -82,28 +82,17 @@
           <div class="row w-100 mx-0">
             <div class="col-lg-4 mx-auto">
               <div class="auth-form-light text-left py-5 px-4 px-sm-5">
-                <div class="brand-logo text-center">
-                  <a class="navbar-brand brand-logo mx-auto d-block"
-                      style="
-                      font-size:22px;
-                      font-weight:700;
-                      color:#1F3BB3;
-                      letter-spacing:1px;
-                      text-decoration:none;
-                      ">
-                      SIPAL
-                  </a>
-              
-                  <p style="
-                      font-size:14px;
-                      color:#6c757d;
-                      margin-top:-24px;
-                      margin-bottom:0;
-                      letter-spacing:0.5px;
-                      ">
-                      Sistem Informasi Peminjaman Alat Laboratorium
+                <div class="brand-logo text-center mb-4">
+                  <img src="{{ asset('assets/images/logo-mini.svg') }}" 
+                       alt="SIPAL Logo" 
+                       style="max-width: 80px; height: auto;">
+                  {{-- <h3 class="mt-3 mb-0" style="color: #1F3BB3; font-weight: 700;">
+                    SIMPEL
+                  </h3> --}}
+                  <p style="font-size: 13px; color: #6c757d; margin-top: 5px;">
+                    Sistem Manajemen Inventory & Peminjaman Alat Laboratorium
                   </p>
-              </div>
+                </div>
                 {{-- <h4>New here?</h4>
                 <h6 class="fw-light">Signing up is easy. It only takes a few steps</h6> --}}
 

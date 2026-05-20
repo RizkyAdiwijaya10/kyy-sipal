@@ -1,8 +1,6 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 
 @section('title', 'Ajukan Peminjaman')
-@section('page-title', 'Ajukan Peminjaman')
-@section('page-subtitle', 'Form pengajuan peminjaman barang')
 
 @section('content')
 <div class="row">
@@ -44,7 +42,7 @@
 
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Tanggal Pinjam *</label>
+                            <label class="form-label">Tanggal Pinjam</label>
                             <input type="date" 
                                    name="loan_date" 
                                    class="form-control"
@@ -54,7 +52,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Rencana Kembali *</label>
+                            <label class="form-label">Rencana Kembali</label>
                             <input type="date" 
                                    name="return_date" 
                                    class="form-control"
@@ -65,7 +63,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Tujuan Peminjaman *</label>
+                        <label class="form-label">Tujuan Peminjaman</label>
                         <textarea name="purpose" 
                                   class="form-control" 
                                   rows="3"
@@ -75,7 +73,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Upload Surat Peminjaman (PDF) *</label>
+                        <label class="form-label">Upload Surat Peminjaman (PDF)</label>
                         <input type="file" 
                                name="surat" 
                                class="form-control"
@@ -93,7 +91,7 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <label class="form-label">Pilih Barang *</label>
+                                        <label class="form-label">Pilih Barang</label>
                                         <select name="items[0][item_id]" 
                                                 class="form-control item-select" 
                                                 data-index="0"
@@ -102,18 +100,22 @@
                                             @foreach($items as $item)
                                             <option value="{{ $item->id }}" 
                                                     data-stok="{{ $item->available_units_count }}"
-                                                    data-nama="{{ $item->name }}">
+                                                    data-nama="{{ $item->name }}"
+                                                    {{ $item->available_units_count == 0 ? 'disabled' : '' }}>
                                                 {{ $item->name }} 
                                                 @if($item->brand || $item->model)
                                                     ({{ $item->brand }} {{ $item->model }})
                                                 @endif
-                                                - Stok: {{ $item->available_units_count }} unit
+                                                {{-- - Stok: {{ $item->available_units_count }} unit --}}
+                                                @if($item->available_units_count == 0)
+                                                    (Habis)
+                                                @endif
                                             </option>
                                             @endforeach
                                         </select>
                                     </div>
                                     <div class="col-md-3">
-                                        <label class="form-label">Jumlah *</label>
+                                        <label class="form-label">Jumlah</label>
                                         <input type="number" 
                                                name="items[0][quantity]" 
                                                class="form-control quantity-input" 
@@ -137,11 +139,10 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <button type="button" class="btn btn-secondary btn-sm" id="addItemBtn">
+                    <div class="mb-3 d-flex align-items-center">
+                        <button type="button" class="btn btn-secondary" id="addItemBtn">
                             <i class="mdi mdi-plus"></i> Tambah Barang Lain
                         </button>
-                        <small class="text-muted ms-2">Maksimal 5 jenis barang</small>
                     </div>
 
                     <div class="mt-4 d-flex justify-content-between">
@@ -197,11 +198,8 @@
     </div>
 </div>
 
-<!-- SCRIPT LANGSUNG TANPA PUSH (jika push tidak berfungsi) -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Script loaded'); // Debug
-    
     let itemCount = 1;
     const maxItems = 5;
 
@@ -210,6 +208,52 @@ document.addEventListener('DOMContentLoaded', function() {
     @foreach($items as $item)
         stockData[{{ $item->id }}] = {{ $item->available_units_count }};
     @endforeach
+
+    // Function untuk mendapatkan semua ID barang yang sudah dipilih (except excludeIndex)
+    function getSelectedItemIds(excludeIndex = null) {
+        const selectedIds = [];
+        document.querySelectorAll('.item-select').forEach((select, idx) => {
+            if (select.value && idx != excludeIndex) {
+                selectedIds.push(select.value);
+            }
+        });
+        return selectedIds;
+    }
+
+    // Function untuk update semua dropdown options (disable barang yang sudah dipilih)
+    function updateAllDropdowns(changedSelectIndex = null) {
+        const selectedIds = getSelectedItemIds(changedSelectIndex);
+        
+        document.querySelectorAll('.item-select').forEach((select, idx) => {
+            const currentValue = select.value;
+            
+            Array.from(select.options).forEach(option => {
+                if (option.value === '') {
+                    option.disabled = false;
+                    return;
+                }
+                
+                // Jika barang sudah dipilih di row lain (bukan row ini), disable option
+                if (selectedIds.includes(option.value) && option.value !== currentValue) {
+                    option.disabled = true;
+                } 
+                // Jika stok habis, disable option
+                else if (stockData[option.value] === 0) {
+                    option.disabled = true;
+                }
+                else {
+                    option.disabled = false;
+                }
+            });
+            
+            // Jika value saat ini menjadi disabled, reset select
+            const selectedOption = select.options[select.selectedIndex];
+            if (selectedOption && selectedOption.disabled) {
+                select.value = '';
+                updateStockInfo(select, idx);
+            }
+        });
+    }
 
     // Function untuk update info stok
     function updateStockInfo(select, index) {
@@ -235,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (maxStock === 0) {
                     infoDiv.innerHTML = '<span class="text-danger">Stok habis! Tidak dapat dipinjam.</span>';
                 } else {
-                    infoDiv.innerHTML = `Stok tersedia: ${maxStock} unit. Maksimal pinjam: ${maxStock} unit.`;
+                    infoDiv.innerHTML = `Stok tersedia: ${maxStock} unit.`;
                 }
             }
         }
@@ -300,19 +344,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            // Update info stok ID
             const infoDiv = document.getElementById(`info-stok-${idx}`);
             if (infoDiv) {
                 infoDiv.id = `info-stok-${idx}`;
             }
             
-            // Update event listener
             if (select) {
                 select.onchange = function() { 
-                    updateStockInfo(this, idx); 
+                    const currentIdx = parseInt(this.getAttribute('data-index'));
+                    updateStockInfo(this, currentIdx); 
+                    updateAllDropdowns(currentIdx);
                     updateSummary();
                 };
-                // Trigger update for existing
                 if (select.value) {
                     updateStockInfo(select, idx);
                 }
@@ -320,19 +363,21 @@ document.addEventListener('DOMContentLoaded', function() {
             if (quantityInput) {
                 quantityInput.onchange = function() { 
                     const selectRow = row.querySelector('.item-select');
-                    updateStockInfo(selectRow, idx); 
+                    const currentIdx = parseInt(selectRow.getAttribute('data-index'));
+                    updateStockInfo(selectRow, currentIdx); 
                     updateSummary();
                 };
                 quantityInput.onkeyup = function() { updateSummary(); };
             }
         });
+        
+        updateAllDropdowns();
     }
 
     // Tambah item baru
     const addBtn = document.getElementById('addItemBtn');
     if (addBtn) {
         addBtn.addEventListener('click', function() {
-            console.log('Add button clicked'); // Debug
             if (itemCount >= maxItems) {
                 alert('Maksimal 5 jenis barang!');
                 return;
@@ -345,12 +390,18 @@ document.addEventListener('DOMContentLoaded', function() {
             // Build options HTML
             let optionsHtml = '<option value="">-- Pilih Barang --</option>';
             @foreach($items as $item)
-            optionsHtml += `<option value="{{ $item->id }}" data-stok="{{ $item->available_units_count }}" data-nama="{{ $item->name }}">
+            optionsHtml += `<option value="{{ $item->id }}" 
+                                    data-stok="{{ $item->available_units_count }}" 
+                                    data-nama="{{ $item->name }}"
+                                    {{ $item->available_units_count == 0 ? 'disabled' : '' }}>
                 {{ $item->name }} 
                 @if($item->brand || $item->model)
                     ({{ $item->brand }} {{ $item->model }})
                 @endif
                 - Stok: {{ $item->available_units_count }} unit
+                @if($item->available_units_count == 0)
+                    (Habis)
+                @endif
             </option>`;
             @endforeach
             
@@ -391,13 +442,12 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             
             container.appendChild(newRow);
-            itemCount++;
             updateRowIndices();
             updateSummary();
         });
     }
 
-    // Hapus item (delegation)
+    // Hapus item
     document.getElementById('items-container').addEventListener('click', function(e) {
         const removeBtn = e.target.closest('.remove-item');
         if (removeBtn) {
@@ -419,6 +469,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initial update
     updateRowIndices();
+    updateAllDropdowns();
     updateSummary();
     
     // Validasi sebelum submit
@@ -427,9 +478,18 @@ document.addEventListener('DOMContentLoaded', function() {
         loanForm.addEventListener('submit', function(e) {
             const selectedItems = document.querySelectorAll('.item-select');
             let hasSelected = false;
+            const selectedIds = [];
             
             for (let select of selectedItems) {
                 if (select.value) {
+                    // Cek duplikasi barang
+                    if (selectedIds.includes(select.value)) {
+                        e.preventDefault();
+                        alert('Anda tidak dapat memilih barang yang sama lebih dari satu kali!');
+                        return false;
+                    }
+                    selectedIds.push(select.value);
+                    
                     const idx = select.getAttribute('data-index');
                     const quantityInput = document.querySelector(`input[name="items[${idx}][quantity]"]`);
                     const maxStock = stockData[select.value];

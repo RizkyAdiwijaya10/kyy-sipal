@@ -11,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // Nama kategori (Alat Lab, Elektronik, Meubeler)
+            $table->string('name');
             $table->text('description')->nullable();
             $table->timestamps();
         });

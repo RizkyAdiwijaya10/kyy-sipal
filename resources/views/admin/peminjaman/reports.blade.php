@@ -1,8 +1,6 @@
 @extends('layouts.app')
 
 @section('title', 'Laporan Peminjaman')
-@section('page-title', 'Laporan Peminjaman')
-@section('page-subtitle', 'Filter dan export data peminjaman')
 
 @section('content')
 <div class="container">
@@ -70,10 +68,9 @@
         </div>
     </div>
 
-    {{-- SUMMARY STATISTIK --}}
     <div class="row mb-4 no-print">
         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
-            <div class="card bg-primary text-white">
+            <div class="card bg-gradient-cyan text-white">
                 <div class="card-body text-center">
                     <h4 class="mb-0 text-white">{{ $summary['total'] }}</h4>
                     <small>Total</small>
@@ -81,15 +78,15 @@
             </div>
         </div>
         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
-            <div class="card bg-warning text-dark">
+            <div class="card bg-gradient-cyan text-white">
                 <div class="card-body text-center">
-                    <h4 class="mb-0">{{ $summary['pending'] }}</h4>
+                    <h4 class="mb-0 text-white">{{ $summary['pending'] }}</h4>
                     <small>Pending</small>
                 </div>
             </div>
         </div>
         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
-            <div class="card bg-info text-white">
+            <div class="card bg-gradient-cyan text-white">
                 <div class="card-body text-center">
                     <h4 class="mb-0 text-white">{{ $summary['approved'] }}</h4>
                     <small>Disetujui</small>
@@ -97,7 +94,7 @@
             </div>
         </div>
         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
-            <div class="card bg-primary text-white">
+            <div class="card bg-gradient-cyan text-white">
                 <div class="card-body text-center">
                     <h4 class="mb-0 text-white">{{ $summary['borrowed'] }}</h4>
                     <small>Dipinjam</small>
@@ -105,7 +102,7 @@
             </div>
         </div>
         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
-            <div class="card bg-success text-white">
+            <div class="card bg-gradient-cyan text-white">
                 <div class="card-body text-center">
                     <h4 class="mb-0 text-white">{{ $summary['returned'] }}</h4>
                     <small>Dikembalikan</small>
@@ -113,7 +110,7 @@
             </div>
         </div>
         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
-            <div class="card bg-danger text-white">
+            <div class="card bg-gradient-cyan text-white">
                 <div class="card-body text-center">
                     <h4 class="mb-0 text-white">{{ $summary['overdue'] }}</h4>
                     <small>Terlambat</small>
@@ -122,7 +119,6 @@
         </div>
     </div>
 
-    {{-- TABLE LAPORAN --}}
     <div class="card shadow-sm border-0">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3 no-print">
@@ -281,7 +277,7 @@ function printReport() {
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Laporan Peminjaman</title>
+            
             <meta charset="utf-8">
             <style>
                 body {

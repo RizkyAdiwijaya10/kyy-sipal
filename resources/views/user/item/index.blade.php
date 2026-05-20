@@ -1,8 +1,6 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 
 @section('title', 'Daftar Alat')
-@section('page-title', 'Daftar Alat')
-@section('page-subtitle', 'Barang yang tersedia untuk dipinjam')
 
 @section('content')
 <div class="card">

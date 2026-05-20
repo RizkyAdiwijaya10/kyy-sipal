@@ -99,7 +99,7 @@
                                         <button class="btn btn-warning btn-sm btn-icon"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#editModal{{ $item->id }}">
-                                            <i class="mdi mdi-pencil"></i>
+                                            <i class="mdi mdi-pencil"></i> Edit
                                         </button>
 
                                         @if($item->item_unit_count == 0)
@@ -116,13 +116,13 @@
                                                         'delete-items-{{ $item->id }}',
                                                         'Kategori ini akan dihapus secara permanen'
                                                     )">
-                                                <i class="mdi mdi-delete"></i>
+                                                <i class="mdi mdi-delete"></i> Hapus
                                             </button>
                                         </form>
                                         @else
                                         <span class="btn btn-secondary btn-sm btn-icon disabled"
                                             title="Tidak dapat dihapus (memiliki {{ $item->item_units_count }} barang)">
-                                            <i class="mdi mdi-delete"></i>
+                                            <i class="mdi mdi-delete"></i> Hapus
                                         </span>
                                         @endif
                                     </div>

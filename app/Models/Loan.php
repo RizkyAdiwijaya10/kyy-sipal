@@ -21,6 +21,11 @@ class Loan extends Model
         'notes',
         'approved_by',
         'approved_at',
+        'return_requested_at',
+        'return_request_notes',
+        'return_request_status',
+        'return_approved_by',
+        'return_approved_at',
     ];
 
     protected $casts = [
@@ -28,6 +33,8 @@ class Loan extends Model
         'return_date' => 'date',
         'actual_return_date' => 'date',
         'approved_at' => 'datetime',
+        'return_requested_at' => 'datetime',
+        'return_approved_at' => 'datetime',
     ];
 
     // Relasi ke user peminjam
@@ -113,5 +120,24 @@ class Loan extends Model
     public function scopeForUser($query, $userId)
     {
         return $query->where('user_id', $userId);
+    }
+
+     public function canRequestReturn()
+    {
+        return $this->status === 'borrowed' && 
+               is_null($this->return_requested_at) && 
+               is_null($this->actual_return_date);
+    }
+
+    // Cek apakah pengajuan pengembalian pending
+    public function isReturnRequestPending()
+    {
+        return $this->return_request_status === 'pending';
+    }
+
+    // Scope untuk pengajuan pengembalian
+    public function scopeReturnRequestPending($query)
+    {
+        return $query->where('return_request_status', 'pending');
     }
 }

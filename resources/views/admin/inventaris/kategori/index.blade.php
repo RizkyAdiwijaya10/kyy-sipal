@@ -36,7 +36,7 @@
                     </div>              
                 </div>
                 
-                {{-- @if(session('success'))
+                @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -48,7 +48,7 @@
                     {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
-                @endif --}}
+                @endif
                 
                 <div class="table-responsive">
                     <table class="table table-hover">
@@ -72,9 +72,7 @@
                                     {{ $category->description ?? '-' }}
                                 </td>
                                 <td>
-                                    <span class="badge badge-info">
-                                        {{ $category->items_count }} barang
-                                    </span>
+                                    {{ $category->items_count }} barang
                                 </td>
                                 <td>
                                     <div class="d-flex gap-1">
@@ -82,7 +80,7 @@
                                         <button class="btn btn-warning btn-sm btn-icon"
                                             data-bs-toggle="modal"
                                             data-bs-target="#editCategoryModal{{ $category->id }}">
-                                            <i class="mdi mdi-pencil"></i>
+                                            <i class="mdi mdi-pencil"></i> Edit
                                         </button>
                                         
                                         <!-- DELETE -->
@@ -99,13 +97,13 @@
                                                         'delete-category-{{ $category->id }}',
                                                         'Kategori ini akan dihapus secara permanen'
                                                     )">
-                                                <i class="mdi mdi-delete"></i>
+                                                <i class="mdi mdi-delete"></i> Hapus
                                             </button>
                                         </form>
                                         @else
                                         <span class="btn btn-secondary btn-sm btn-icon disabled"
                                             title="Tidak dapat dihapus (memiliki {{ $category->items_count }} barang)">
-                                            <i class="mdi mdi-delete"></i>
+                                            <i class="mdi mdi-delete"></i> Hapus
                                         </span>
                                         @endif
                                     </div>
