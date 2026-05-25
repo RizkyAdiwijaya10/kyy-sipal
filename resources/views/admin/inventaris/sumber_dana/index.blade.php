@@ -7,31 +7,27 @@
     <div class="col-lg-12 grid-margin stretch-card">
         <div class="card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="card-title">Data Sumber Dana</h4>
-                    <div class="d-flex gap-2 flex-nowrap">
-                        <!-- Tambah Sumber Dana (MODAL) -->
-                        <button class="btn btn-primary btn-sm" 
-                                data-bs-toggle="modal" 
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="card-title m-0 fw-bold text-primary">
+                            <i class="mdi mdi-cash me-2"></i> Data Sumber Dana
+                        </h6>
+                        <div class="d-flex gap-2 flex-nowrap">
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#createSumberDanaModal">
-                            <i class="mdi mdi-plus"></i> Tambah Sumber Dana
-                        </button>
-                        
-                        <!-- Import -->
-                        <form id="importForm" 
-                              action="{{ route('sumber-dana.import') }}" 
-                              method="POST" 
-                              enctype="multipart/form-data" 
-                              class="d-inline-flex align-items-center m-0">
-                            @csrf
-                            <label class="btn btn-success btn-sm mb-0">
-                                <i class="mdi mdi-upload"></i> Import File
-                                <input type="file" name="file" accept=".csv,.xlsx,.xls" hidden
-                                       onchange="document.getElementById('importForm').submit()">
-                            </label>
-                        </form>    
+                                <i class="mdi mdi-plus"></i> Tambah Sumber Dana
+                            </button>
+                            <form id="importForm" action="{{ route('sumber-dana.import') }}" method="POST"
+                                enctype="multipart/form-data" class="d-inline-flex align-items-center m-0">
+                                @csrf
+
+                                <label class="btn btn-success btn-sm mb-0">
+                                    <i class="mdi mdi-upload"></i> Import File
+                                    <input type="file" name="file" accept=".csv,.xlsx,.xls" hidden
+                                        onchange="document.getElementById('importForm').submit()">
+                                </label>
+                            </form>
+                        </div>
                     </div>
-                </div>
                 
                 @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">

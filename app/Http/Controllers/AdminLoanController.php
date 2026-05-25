@@ -16,25 +16,58 @@ class AdminLoanController extends Controller
      */
     public function index(Request $request)
     {
-        $status = $request->status;
-        
-        $loans = Loan::with(['user', 'details.itemUnit.item'])
-            ->when($status, fn($q) => $q->where('status', $status))
-            ->latest()
-            ->paginate(10);
+        $query = Loan::with(['user', 'details.itemUnit.item']);
+
+        // Filter status
+        if ($request->filled('status')) {
+            switch ($request->status) {
+                case 'overdue':
+                    $query->where('status', 'borrowed')
+                        ->whereDate('return_date', '<', now());
+                    break;
+                case 'return_pending':
+                    $query->where('return_request_status', 'pending');
+                    break;
+                default:
+                    $query->where('status', $request->status);
+                    break;
+            }
+        }
+
+        // Filter tanggal pinjam
+        if ($request->filled('date_from')) {
+            $query->whereDate('loan_date', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('loan_date', '<=', $request->date_to);
+        }
+
+        // Filter search (kode / nama peminjam / nama barang)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('loan_code', 'like', "%{$search}%")
+                ->orWhereHas('user', fn($q2) => $q2->where('name', 'like', "%{$search}%"))
+                ->orWhereHas('details.itemUnit.item', fn($q2) => $q2->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        $loans = $query->latest()->paginate(10)->withQueryString();
 
         $stats = [
-            'pending'   => Loan::where('status', 'pending')->count(),
-            'approved'  => Loan::where('status', 'approved')->count(),
-            'borrowed'  => Loan::where('status', 'borrowed')->count(),
-            'returned'  => Loan::where('status', 'returned')->count(),
-            'rejected'  => Loan::where('status', 'rejected')->count(),
-            'overdue'   => Loan::where('status', 'borrowed')
-                            ->whereDate('return_date', '<', now())
-                            ->count(),
+            'pending'        => Loan::where('status', 'pending')->count(),
+            'approved'       => Loan::where('status', 'approved')->count(),
+            'borrowed'       => Loan::where('status', 'borrowed')->count(),
+            'returned'       => Loan::where('status', 'returned')->count(),
+            'rejected'       => Loan::where('status', 'rejected')->count(),
+            'overdue'        => Loan::where('status', 'borrowed')
+                                ->whereDate('return_date', '<', now())
+                                ->count(),
+            'return_pending' => Loan::where('return_request_status', 'pending')->count(),
         ];
 
-        return view('admin.peminjaman.index', compact('loans', 'stats', 'status'));
+        return view('admin.peminjaman.index', compact('loans', 'stats'));
     }
 
     /**
@@ -288,25 +321,43 @@ class AdminLoanController extends Controller
      */
     public function returnRequests(Request $request)
     {
-        $status = $request->status;
-        
-        $loans = Loan::with(['user', 'details.itemUnit.item'])
-            ->whereNotNull('return_requested_at')
-            ->when($status, fn($q) => $q->where('return_request_status', $status))
-            ->latest('return_requested_at')
-            ->paginate(10);
+        $query = Loan::with(['user', 'details.itemUnit.item'])
+            ->whereNotNull('return_requested_at');
+
+        // Filter status pengembalian
+        if ($request->filled('status')) {
+            $query->where('return_request_status', $request->status);
+        }
+
+        // Filter tanggal pengajuan pengembalian
+        if ($request->filled('date_from')) {
+            $query->whereDate('return_requested_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('return_requested_at', '<=', $request->date_to);
+        }
+
+        // Filter search (kode / nama peminjam / nama barang)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('loan_code', 'like', "%{$search}%")
+                ->orWhereHas('user', fn($q2) => $q2->where('name', 'like', "%{$search}%"))
+                ->orWhereHas('details.itemUnit.item', fn($q2) => $q2->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        $loans = $query->latest('return_requested_at')->paginate(10)->withQueryString();
 
         $stats = [
-            'pending' => Loan::whereNotNull('return_requested_at')
-                ->where('return_request_status', 'pending')->count(),
-            'approved' => Loan::whereNotNull('return_requested_at')
-                ->where('return_request_status', 'approved')->count(),
-            'rejected' => Loan::whereNotNull('return_requested_at')
-                ->where('return_request_status', 'rejected')->count(),
-            'total' => Loan::whereNotNull('return_requested_at')->count(),
+            'pending'  => Loan::whereNotNull('return_requested_at')->where('return_request_status', 'pending')->count(),
+            'approved' => Loan::whereNotNull('return_requested_at')->where('return_request_status', 'approved')->count(),
+            'rejected' => Loan::whereNotNull('return_requested_at')->where('return_request_status', 'rejected')->count(),
+            'total'    => Loan::whereNotNull('return_requested_at')->count(),
         ];
 
-        return view('admin.peminjaman.return-requests', compact('loans', 'stats', 'status'));
+        return view('admin.peminjaman.return-requests', compact('loans', 'stats'));
     }
 
     /**
@@ -410,45 +461,60 @@ class AdminLoanController extends Controller
             ->with('success', 'Pengajuan pengembalian ditolak');
     }
 
-    /**
-     * Laporan
-     */
     public function reports(Request $request)
     {
-        $query = Loan::with(['user', 'details.itemUnit.item']);
+        $query = Loan::with(['user', 'details.itemUnit.item.category']);
 
-        if ($request->start_date) {
+        // Filter tanggal pinjam
+        if ($request->filled('start_date')) {
             $query->whereDate('loan_date', '>=', $request->start_date);
         }
 
-        if ($request->end_date) {
+        if ($request->filled('end_date')) {
             $query->whereDate('loan_date', '<=', $request->end_date);
         }
 
-        if ($request->status && $request->status != 'all') {
-            $query->where('status', $request->status);
+        // Filter status
+        if ($request->filled('status') && $request->status !== 'all') {
+            if ($request->status === 'overdue') {
+                $query->where('status', 'borrowed')
+                    ->whereDate('return_date', '<', now());
+            } else {
+                $query->where('status', $request->status);
+            }
+        }
+
+        // Filter nama peminjam
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('loan_code', 'like', "%{$search}%")
+                ->orWhereHas('user', fn($q2) => $q2->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        // Filter nama/kategori barang
+        if ($request->filled('item')) {
+            $item = $request->item;
+            $query->whereHas('details.itemUnit.item', fn($q) => $q->where('name', 'like', "%{$item}%"));
         }
 
         $loans = $query->orderBy('loan_date', 'desc')->get();
 
         $summary = [
-            'total'     => $loans->count(),
-            'pending'   => $loans->where('status', 'pending')->count(),
-            'approved'  => $loans->where('status', 'approved')->count(),
-            'borrowed'  => $loans->where('status', 'borrowed')->count(),
-            'returned'  => $loans->where('status', 'returned')->count(),
-            'rejected'  => $loans->where('status', 'rejected')->count(),
-            'overdue'   => $loans->filter(function ($loan) {
-                return $loan->status === 'borrowed'
-                    && $loan->return_date < now();
-            })->count(),
+            'total'    => $loans->count(),
+            'pending'  => $loans->where('status', 'pending')->count(),
+            'approved' => $loans->where('status', 'approved')->count(),
+            'borrowed' => $loans->where('status', 'borrowed')->count(),
+            'returned' => $loans->where('status', 'returned')->count(),
+            'rejected' => $loans->where('status', 'rejected')->count(),
+            'overdue'  => $loans->filter(fn($loan) =>
+                $loan->status === 'borrowed' && $loan->return_date < now()
+            )->count(),
         ];
 
         return view('admin.laporan.index', compact('loans', 'summary'));
     }
-    /**
- * Print laporan (template terpisah)
- */
 public function printReport(Request $request)
 {
     $query = Loan::with(['user', 'details.itemUnit.item']);

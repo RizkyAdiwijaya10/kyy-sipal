@@ -100,68 +100,72 @@
     <div class="card shadow-sm border-0">
         <div class="card-body">
 
-            {{-- FILTER DROPDOWN --}}
-            <div class="row mb-4">
-                <div class="col-md-2">
-                    <div class="dropdown">
-                        <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            @php
-                                $statusLabels = [
-                                    null => 'Semua Status',
-                                    'pending' => 'Pending',
-                                    'approved' => 'Disetujui',
-                                    'borrowed' => 'Dipinjam',
-                                    'returned' => 'Dikembalikan',
-                                    'rejected' => 'Ditolak'
-                                ];
-                                $currentStatus = request('status');
-                                $buttonLabel = $statusLabels[$currentStatus] ?? 'Semua Status';
-                            @endphp
-                            {{ $buttonLabel }}
-                        </button>
-                        <ul class="dropdown-menu w-100">
-                            <li>
-                                <a class="dropdown-item {{ !request('status') ? 'active' : '' }}" 
-                                   href="{{ route('admin.loans.index') }}">
-                                    <i class="mdi mdi-view-dashboard me-2"></i> Semua Status
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item {{ request('status') == 'pending' ? 'active' : '' }}" 
-                                   href="{{ route('admin.loans.index', ['status' => 'pending']) }}">
-                                    <i class="mdi mdi-clock-outline text-warning me-2"></i> Pending
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item {{ request('status') == 'approved' ? 'active' : '' }}" 
-                                   href="{{ route('admin.loans.index', ['status' => 'approved']) }}">
-                                    <i class="mdi mdi-check-circle-outline text-primary me-2"></i> Disetujui
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item {{ request('status') == 'borrowed' ? 'active' : '' }}" 
-                                   href="{{ route('admin.loans.index', ['status' => 'borrowed']) }}">
-                                    <i class="mdi mdi-bookmark-outline text-info me-2"></i> Dipinjam
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item {{ request('status') == 'returned' ? 'active' : '' }}" 
-                                   href="{{ route('admin.loans.index', ['status' => 'returned']) }}">
-                                    <i class="mdi mdi-check-all text-success me-2"></i> Dikembalikan
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item {{ request('status') == 'rejected' ? 'active' : '' }}" 
-                                   href="{{ route('admin.loans.index', ['status' => 'rejected']) }}">
-                                    <i class="mdi mdi-close-circle-outline text-danger me-2"></i> Ditolak
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+            {{-- FILTER --}}
+            <form method="GET" action="{{ route('admin.loans.index') }}" id="filterForm">
+                <div class="row g-2 mb-4">
 
+                    {{-- Search --}}
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white">
+                                <i class="mdi mdi-magnify text-muted"></i>
+                            </span>
+                            <input type="text"
+                                name="search"
+                                class="form-control border-start-0"
+                                placeholder="Cari kode / peminjam / barang..."
+                                value="{{ request('search') }}">
+                        </div>
+                    </div>
+
+                    {{-- Status --}}
+                    <div class="col-md-2">
+                        <select name="status" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                            <option value="">Semua Status</option>
+                            <option value="pending"        {{ request('status') == 'pending'        ? 'selected' : '' }}>Pending</option>
+                            <option value="approved"       {{ request('status') == 'approved'       ? 'selected' : '' }}>Disetujui</option>
+                            <option value="borrowed"       {{ request('status') == 'borrowed'       ? 'selected' : '' }}>Dipinjam</option>
+                            <option value="overdue"        {{ request('status') == 'overdue'        ? 'selected' : '' }}>Overdue / Terlambat</option>
+                            <option value="return_pending" {{ request('status') == 'return_pending' ? 'selected' : '' }}>Pengajuan Pengembalian</option>
+                            <option value="returned"       {{ request('status') == 'returned'       ? 'selected' : '' }}>Dikembalikan</option>
+                            <option value="rejected"       {{ request('status') == 'rejected'       ? 'selected' : '' }}>Ditolak</option>
+                            <option value="cancelled"      {{ request('status') == 'cancelled'      ? 'selected' : '' }}>Dibatalkan</option>
+                        </select>
+                    </div>
+
+                    {{-- Tanggal Dari --}}
+                    <div class="col-md-2">
+                        <input type="date"
+                            name="date_from"
+                            class="form-control"
+                            value="{{ request('date_from') }}"
+                            placeholder="Dari tanggal">
+                    </div>
+
+                    {{-- Tanggal Sampai --}}
+                    <div class="col-md-2">
+                        <input type="date"
+                            name="date_to"
+                            class="form-control"
+                            value="{{ request('date_to') }}"
+                            placeholder="Sampai tanggal">
+                    </div>
+
+                    {{-- Tombol --}}
+                    <div class="col-md-3 d-flex gap-2 align-items-center">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="mdi mdi-filter"></i> Filter
+                        </button>
+                        @if(request()->hasAny(['search', 'status', 'date_from', 'date_to']))
+                            <a href="{{ route('admin.loans.index') }}" class="btn btn-outline-secondary">
+                                <i class="mdi mdi-close"></i> Reset
+                            </a>
+                        @endif
+                    </div>
+
+                </div>
+            </form>
+            {{-- END FILTER --}}
             {{-- TABLE --}}
             <div class="table-responsive">
                 <table class="table table-hover align-middle">

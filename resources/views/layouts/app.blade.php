@@ -134,7 +134,7 @@
             </li>
 
             <!-- PEMINJAMAN -->
-            <li class="nav-item nav-category">PEMINJAMAN</li>
+            <li class="nav-item nav-category">PENGAJUAN</li>
 
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('admin.loans.index') && !request()->has('type') ? 'active' : '' }}"

@@ -5,7 +5,75 @@
 @section('content')
 <div class="card">
     <div class="card-body">
+       
         <div class="table-responsive">
+             {{-- FILTER --}}
+        <form method="GET" action="{{ route('user.loans.history') }}" id="filterForm">
+            <div class="row g-2 mb-4">
+
+                {{-- Search --}}
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">
+                            <i class="mdi mdi-magnify text-muted"></i>
+                        </span>
+                        <input type="text" 
+                            name="search" 
+                            class="form-control border-start-0" 
+                            placeholder="Cari kode / nama barang..." 
+                            value="{{ request('search') }}">
+                    </div>
+                </div>
+
+                {{-- Status --}}
+                <div class="col-md-2">
+                    <select name="status" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                        <option value="">Semua Status</option>
+                        <option value="pending"{{ request('status') == 'pending' ? 'selected' : '' }}>Menunggu Persetujuan</option>
+                        <option value="approved"{{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui</option>
+                        <option value="borrowed"{{ request('status') == 'borrowed' ? 'selected' : '' }}>Dipinjam</option>
+                        <option value="terlambat"{{ request('status') == 'terlambat' ? 'selected' : '' }}>Terlambat</option>
+                        <option value="return_pending"{{ request('status') == 'return_pending' ? 'selected' : '' }}>Pengajuan Pengembalian</option>
+                        <option value="return_rejected"{{ request('status') == 'return_rejected'  ? 'selected' : '' }}>Pengembalian Ditolak</option>
+                        <option value="returned"{{ request('status') == 'returned' ? 'selected' : '' }}>Dikembalikan</option>
+                        <option value="rejected"{{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
+                        <option value="cancelled"{{ request('status') == 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
+                    </select>
+                </div>
+
+                {{-- Tanggal Dari --}}
+                <div class="col-md-2">
+                    <input type="date" 
+                        name="date_from" 
+                        class="form-control" 
+                        placeholder="Dari tanggal"
+                        value="{{ request('date_from') }}">
+                </div>
+
+                {{-- Tanggal Sampai --}}
+                <div class="col-md-2">
+                    <input type="date" 
+                        name="date_to" 
+                        class="form-control" 
+                        placeholder="Sampai tanggal"
+                        value="{{ request('date_to') }}">
+                </div>
+
+                {{-- Tombol --}}
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="mdi mdi-filter"></i> Filter
+                    </button>
+                    @if(request()->hasAny(['search', 'status', 'date_from', 'date_to']))
+                        <a href="{{ route('user.loans.history') }}" class="btn btn-outline-secondary">
+                            <i class="mdi mdi-close"></i> Reset
+                        </a>
+                    @endif
+                </div>
+
+            </div>
+        </form>
+        {{-- END FILTER --}}
             <table class="table table-hover">
                 <thead>
                     <tr>

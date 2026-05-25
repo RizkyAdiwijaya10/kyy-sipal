@@ -7,18 +7,6 @@ use Illuminate\Support\Facades\Log;
 
 class WhatsAppHelper
 {
-    protected static $apiKey;
-    protected static $baseUrl = 'https://api.fonnte.com';
-
-    /**
-     * Inisialisasi API key
-     */
-    protected static function init()
-    {
-        
-        self::$apiKey = env('FONNTE_TOKEN');
-    }
-
     /**
      * Format nomor HP menjadi 62xxxxxxxx
      */
@@ -26,7 +14,7 @@ class WhatsAppHelper
     {
         $phone = preg_replace('/[^0-9]/', '', $phone);
 
-        if (substr($phone, 0, 1) == '0') {
+        if (str_starts_with($phone, '0')) {
             $phone = '62' . substr($phone, 1);
         }
 
@@ -34,114 +22,66 @@ class WhatsAppHelper
     }
 
     /**
-     * Kirim pesan WhatsApp
+     * Kirim pesan WhatsApp via Fonnte
      */
     public static function sendMessage($target, $message)
     {
-        self::init();
+        $apiKey  = config('fonnte.token');
+        $baseUrl = config('fonnte.base_url');
+        $timeout = config('fonnte.timeout', 30);
+
+        // Guard: jangan kirim jika token kosong
+        if (empty($apiKey)) {
+            Log::error('WhatsApp gagal: FONNTE_TOKEN tidak ditemukan di config.');
+            return ['success' => false, 'error' => 'Token tidak tersedia'];
+        }
+
+        $target = self::formatPhone($target);
+
+        // Guard: jangan kirim jika nomor tidak valid
+        if (strlen($target) < 10) {
+            Log::warning('WhatsApp gagal: nomor tidak valid', ['target' => $target]);
+            return ['success' => false, 'error' => 'Nomor tidak valid'];
+        }
 
         try {
-
-            $target = self::formatPhone($target);
-
-            Log::info('Mengirim WhatsApp...', [
-                'target' => $target,
-                'message' => $message
+            Log::info('Mengirim WhatsApp via Fonnte...', [
+                'target'  => $target,
+                'message' => $message,
             ]);
 
-            $response = Http::timeout(30)
+            $response = Http::timeout($timeout)
                 ->withHeaders([
-                    'Authorization' => self::$apiKey,
+                    'Authorization' => $apiKey,
                 ])
-                ->post(self::$baseUrl . '/send', [
-                    'target' => $target,
+                ->post($baseUrl . '/send', [
+                    'target'  => $target,
                     'message' => $message,
                 ]);
 
             $data = $response->json();
 
-            Log::info('Response Fonnte', [
-                'response' => $data
-            ]);
+            Log::info('Response Fonnte', ['response' => $data]);
 
-            if (
-                $response->successful() &&
-                isset($data['status']) &&
-                $data['status'] == true
-            ) {
-
-                Log::info('WhatsApp berhasil dikirim', [
-                    'target' => $target
-                ]);
-
-                return [
-                    'success' => true,
-                    'response' => $data
-                ];
+            if ($response->successful() && !empty($data['status'])) {
+                Log::info('WhatsApp berhasil dikirim', ['target' => $target]);
+                return ['success' => true, 'response' => $data];
             }
 
             Log::error('WhatsApp gagal dikirim', [
-                'target' => $target,
-                'response' => $data
+                'target'   => $target,
+                'response' => $data,
             ]);
 
-            return [
-                'success' => false,
-                'error' => $data
-            ];
+            return ['success' => false, 'error' => $data];
 
         } catch (\Exception $e) {
-
             Log::error('WhatsApp Exception', [
-                'message' => $e->getMessage()
+                'target'  => $target,
+                'message' => $e->getMessage(),
             ]);
 
-            return [
-                'success' => false,
-                'error' => $e->getMessage()
-            ];
+            return ['success' => false, 'error' => $e->getMessage()];
         }
     }
-
-    // /**
-    //  * Kirim pesan ke banyak nomor
-    //  */
-    // public static function sendBroadcast($targets, $message)
-    // {
-    //     self::init();
-
-    //     try {
-
-    //         $formattedTargets = array_map(function ($phone) {
-    //             return self::formatPhone($phone);
-    //         }, $targets);
-
-    //         $response = Http::timeout(30)
-    //             ->withHeaders([
-    //                 'Authorization' => self::$apiKey,
-    //             ])
-    //             ->post(self::$baseUrl . '/send', [
-    //                 'target' => implode(',', $formattedTargets),
-    //                 'message' => $message,
-    //             ]);
-
-    //         $data = $response->json();
-
-    //         return [
-    //             'success' => $response->successful(),
-    //             'response' => $data
-    //         ];
-
-    //     } catch (\Exception $e) {
-
-    //         Log::error('WhatsApp Broadcast Error', [
-    //             'message' => $e->getMessage()
-    //         ]);
-
-    //         return [
-    //             'success' => false,
-    //             'error' => $e->getMessage()
-    //         ];
-    //     }
-    // }
 }

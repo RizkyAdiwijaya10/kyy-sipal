@@ -100,53 +100,70 @@
     <div class="card shadow-sm border-0">
         <div class="card-body">
 
-            {{-- FILTER DROPDOWN --}}
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="dropdown">
-                        <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            @php
-                                $statusLabels = [
-                                    null => 'Semua Status',
-                                    'pending' => 'Pending',
-                                    'approved' => 'Disetujui',
-                                    'rejected' => 'Ditolak'
-                                ];
-                                $currentStatus = request('status');
-                                $buttonLabel = $statusLabels[$currentStatus] ?? 'Semua Status';
-                            @endphp
-                            {{ $buttonLabel }}
-                        </button>
-                        <ul class="dropdown-menu w-100">
-                            <li>
-                                <a class="dropdown-item {{ !request('status') ? 'active' : '' }}" 
-                                   href="{{ route('admin.loans.return-requests') }}">
-                                    <i class="mdi mdi-view-dashboard me-2"></i> Semua Status
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item {{ request('status') == 'pending' ? 'active' : '' }}" 
-                                   href="{{ route('admin.loans.return-requests', ['status' => 'pending']) }}">
-                                    <i class="mdi mdi-clock-outline text-warning me-2"></i> Pending
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item {{ request('status') == 'approved' ? 'active' : '' }}" 
-                                   href="{{ route('admin.loans.return-requests', ['status' => 'approved']) }}">
-                                    <i class="mdi mdi-check-circle-outline text-primary me-2"></i> Disetujui
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item {{ request('status') == 'rejected' ? 'active' : '' }}" 
-                                   href="{{ route('admin.loans.return-requests', ['status' => 'rejected']) }}">
-                                    <i class="mdi mdi-close-circle-outline text-danger me-2"></i> Ditolak
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+            {{-- FILTER --}}
+<form method="GET" action="{{ route('admin.loans.return-requests') }}" id="filterForm">
+    <div class="row g-2 mb-4">
+
+        {{-- Search --}}
+        <div class="col-md-3">
+            <div class="input-group">
+                <span class="input-group-text bg-white">
+                    <i class="mdi mdi-magnify text-muted"></i>
+                </span>
+                <input type="text"
+                       name="search"
+                       class="form-control border-start-0"
+                       placeholder="Cari kode / peminjam / barang..."
+                       value="{{ request('search') }}">
             </div>
+        </div>
+
+        {{-- Status --}}
+        <div class="col-md-2">
+            <select name="status" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                <option value="">Semua Status</option>
+                <option value="pending"  {{ request('status') == 'pending'  ? 'selected' : '' }}>Menunggu</option>
+                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui</option>
+                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
+            </select>
+        </div>
+
+        {{-- Tanggal Pengajuan Dari --}}
+        <div class="col-md-2">
+            <input type="date"
+                   name="date_from"
+                   class="form-control"
+                   value="{{ request('date_from') }}"
+                   title="Tanggal pengajuan dari">
+        </div>
+
+        {{-- Tanggal Pengajuan Sampai --}}
+        <div class="col-md-2">
+            <input type="date"
+                   name="date_to"
+                   class="form-control"
+                   value="{{ request('date_to') }}"
+                   title="Tanggal pengajuan sampai">
+        </div>
+
+        {{-- Tombol --}}
+        <div class="col-md-3 d-flex gap-2 align-items-center">
+            <button type="submit" class="btn btn-primary">
+                <i class="mdi mdi-filter"></i> Filter
+            </button>
+            @if(request()->hasAny(['search', 'status', 'date_from', 'date_to']))
+                <a href="{{ route('admin.loans.return-requests') }}" class="btn btn-outline-secondary">
+                    <i class="mdi mdi-close"></i> Reset
+                </a>
+                <span class="badge bg-info align-self-center">
+                    {{ $loans->total() }} hasil
+                </span>
+            @endif
+        </div>
+
+    </div>
+</form>
+{{-- END FILTER --}}
 
             {{-- TABLE --}}
             <div class="table-responsive">
@@ -329,7 +346,7 @@
 <div class="modal fade" id="returnDetailModal" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header bg-gradient-info text-white">
+            <div class="modal-header text-black">
                 <h5 class="modal-title">
                     <i class="mdi mdi-information-outline me-2"></i>
                     Detail Pengajuan Pengembalian

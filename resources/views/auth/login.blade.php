@@ -19,6 +19,22 @@
     <!-- inject:css -->
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <!-- endinject -->
+    <style>
+      /* Background dengan gradient */
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100dvh;
+      }
+      
+      /* Card dengan shadow tebal */
+      .auth-form-light {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      
+    </style>
   </head>
   <body>
     <div class="container-scroller">
@@ -33,9 +49,6 @@
                   <img src="{{ asset('assets/images/logo-mini.svg') }}" 
                        alt="SIPAL Logo" 
                        style="max-width: 80px; height: auto;">
-                  {{-- <h3 class="mt-3 mb-0" style="color: #1F3BB3; font-weight: 700;">
-                    SIMPEL
-                  </h3> --}}
                   <p style="font-size: 13px; color: #6c757d; margin-top: 5px;">
                     Sistem Manajemen Inventory & Peminjaman Alat Laboratorium
                   </p>
@@ -48,26 +61,34 @@
                 </div>
                 @endif
 
+                <!-- Error Message -->
+                @if($errors->any())
+                <div class="alert alert-danger mb-4">
+                    {{ $errors->first() }}
+                </div>
+                @endif
+
                 <form class="pt-3" method="POST" action="{{ route('login') }}">
                   @csrf
 
+                  <!-- Username / Email Field -->
                   <div class="form-group">
-                    <input type="email" 
-                           class="form-control form-control-lg @error('email') is-invalid @enderror" 
-                           id="email" 
-                           name="email"
-                           value="{{ old('email') }}"
-                           placeholder="Email"
+                    <input type="text" 
+                           class="form-control form-control-lg @error('login') is-invalid @enderror" 
+                           id="login" 
+                           name="login"
+                           value="{{ old('login') }}"
+                           placeholder="Username"
                            required 
-                           autofocus 
-                           autocomplete="username">
-                    @error('email')
+                           autofocus>
+                    @error('login')
                     <div class="invalid-feedback">
                         {{ $message }}
                     </div>
                     @enderror
                   </div>
 
+                  <!-- Password Field -->
                   <div class="form-group">
                     <input type="password" 
                            class="form-control form-control-lg @error('password') is-invalid @enderror" 

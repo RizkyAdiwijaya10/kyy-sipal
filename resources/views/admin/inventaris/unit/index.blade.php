@@ -7,32 +7,27 @@
     <div class="col-lg-12 grid-margin stretch-card">
         <div class="card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="card-title">Data Unit Barang</h4>
-                    <div>
-                        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#filterModal">
-                            <i class="mdi mdi-filter"></i> Filter
-                        </button>
-                        <button class="btn btn-primary btn-sm"
-                                data-bs-toggle="modal"
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="card-title m-0 fw-bold text-primary">
+                            <i class="mdi mdi-cube me-2"></i> Data Unit Barang
+                        </h6>
+                        <div class="d-flex gap-2 flex-nowrap">
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#createUnitModal">
-                            <i class="mdi mdi-plus"></i>Tambah Unit
-                        </button>
-                        <form id="importUnitForm"
-                            action="{{ route('item-units.import') }}"
-                            method="POST"
-                            enctype="multipart/form-data"
-                            class="d-inline-flex align-items-center m-0">
-                            @csrf
+                                <i class="mdi mdi-plus"></i> Tambah Unit Barang
+                            </button>
+                            <form id="importForm" action="{{ route('item-units.import') }}" method="POST"
+                                enctype="multipart/form-data" class="d-inline-flex align-items-center m-0">
+                                @csrf
 
-                            <label class="btn btn-success btn-sm mb-0">
-                                <i class="mdi mdi-upload"></i> Import File
-                                <input type="file" name="file" accept=".csv,.xlsx,.xls" hidden
-                                    onchange="document.getElementById('importUnitForm').submit()">
-                            </label>
-                        </form>
+                                <label class="btn btn-success btn-sm mb-0">
+                                    <i class="mdi mdi-upload"></i> Import File
+                                    <input type="file" name="file" accept=".csv,.xlsx,.xls" hidden
+                                        onchange="document.getElementById('importForm').submit()">
+                                </label>
+                            </form>
+                        </div>
                     </div>
-                </div>
                 
                 @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">

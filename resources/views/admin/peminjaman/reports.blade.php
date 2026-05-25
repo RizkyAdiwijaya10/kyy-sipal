@@ -18,7 +18,6 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
-
     {{-- FILTER FORM --}}
     <div class="card shadow-sm border-0 mb-4 no-print">
         <div class="card-header bg-white">
@@ -29,41 +28,84 @@
         </div>
         <div class="card-body">
             <form method="GET" action="{{ route('admin.reports.loans') }}" class="row g-3">
-                <div class="col-md-3">
+
+                {{-- Tanggal Mulai --}}
+                <div class="col-md-2">
                     <label class="form-label">Tanggal Mulai</label>
-                    <input type="date" 
-                           name="start_date" 
-                           class="form-control"
-                           value="{{ request('start_date') }}">
+                    <input type="date"
+                        name="start_date"
+                        class="form-control"
+                        value="{{ request('start_date') }}">
                 </div>
-                <div class="col-md-3">
+
+                {{-- Tanggal Selesai --}}
+                <div class="col-md-2">
                     <label class="form-label">Tanggal Selesai</label>
-                    <input type="date" 
-                           name="end_date" 
-                           class="form-control"
-                           value="{{ request('end_date') }}">
+                    <input type="date"
+                        name="end_date"
+                        class="form-control"
+                        value="{{ request('end_date') }}">
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Status Peminjaman</label>
+
+                {{-- Status --}}
+                <div class="col-md-2">
+                    <label class="form-label">Status</label>
                     <select name="status" class="form-select">
-                        <option value="all" {{ request('status') == 'all' || !request('status') ? 'selected' : '' }}>Semua Status</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui</option>
-                        <option value="borrowed" {{ request('status') == 'borrowed' ? 'selected' : '' }}>Dipinjam</option>
-                        <option value="returned" {{ request('status') == 'returned' ? 'selected' : '' }}>Dikembalikan</option>
-                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
+                        <option value="all"      {{ request('status', 'all') == 'all'      ? 'selected' : '' }}>Semua Status</option>
+                        <option value="pending"  {{ request('status') == 'pending'         ? 'selected' : '' }}>Pending</option>
+                        <option value="approved" {{ request('status') == 'approved'        ? 'selected' : '' }}>Disetujui</option>
+                        <option value="borrowed" {{ request('status') == 'borrowed'        ? 'selected' : '' }}>Dipinjam</option>
+                        <option value="overdue"  {{ request('status') == 'overdue'         ? 'selected' : '' }}>Overdue</option>
+                        <option value="returned" {{ request('status') == 'returned'        ? 'selected' : '' }}>Dikembalikan</option>
+                        <option value="rejected" {{ request('status') == 'rejected'        ? 'selected' : '' }}>Ditolak</option>
                     </select>
                 </div>
-                <div class="col-md-3 d-flex align-items-end">
-                    <div class="d-grid gap-2 w-100">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="mdi mdi-magnify"></i> Tampilkan
-                        </button>
-                        <a href="{{ route('admin.reports.loans') }}" class="btn btn-secondary">
-                            <i class="mdi mdi-refresh"></i> Reset
-                        </a>
+
+                {{-- Cari Peminjam / Kode --}}
+                <div class="col-md-3">
+                    <label class="form-label">Peminjam / Kode</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">
+                            <i class="mdi mdi-account-search text-muted"></i>
+                        </span>
+                        <input type="text"
+                            name="search"
+                            class="form-control border-start-0"
+                            placeholder="Nama peminjam atau kode..."
+                            value="{{ request('search') }}">
                     </div>
                 </div>
+
+                {{-- Cari Nama Barang --}}
+                <div class="col-md-3">
+                    <label class="form-label">Nama Barang</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">
+                            <i class="mdi mdi-package-variant text-muted"></i>
+                        </span>
+                        <input type="text"
+                            name="item"
+                            class="form-control border-start-0"
+                            placeholder="Nama barang yang dipinjam..."
+                            value="{{ request('item') }}">
+                    </div>
+                </div>
+
+                {{-- Tombol --}}
+                <div class="col-12 d-flex gap-2 align-items-center">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="mdi mdi-magnify"></i> Tampilkan
+                    </button>
+                    <a href="{{ route('admin.reports.loans') }}" class="btn btn-outline-secondary">
+                        <i class="mdi mdi-refresh"></i> Reset
+                    </a>
+                    @if(request()->hasAny(['start_date', 'end_date', 'status', 'search', 'item']) && request('status') !== 'all')
+                        <span class="badge bg-info">
+                            {{ $loans->count() }} data ditemukan
+                        </span>
+                    @endif
+                </div>
+
             </form>
         </div>
     </div>

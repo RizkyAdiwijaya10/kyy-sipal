@@ -49,11 +49,7 @@
                                     <div class="border rounded p-3 mb-2">
                                         <small class="text-muted">Email</small>
                                         <p class="mb-0"><strong>{{ auth()->user()->email }}</strong></p>
-                                        @if(auth()->user()->email_verified_at)
-                                            <span class="badge bg-success mt-1">Terverifikasi</span>
-                                        @else
-                                            <span class="badge bg-warning mt-1">Belum Verifikasi</span>
-                                        @endif
+                                        
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
@@ -242,8 +238,8 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <i class="mdi mdi-power text-danger me-2"></i>
-                            <span>Keluar dari sistem</span>
+                            {{-- <i class="mdi mdi-power text-danger me-2"></i> --}}
+                            <span>Keluar</span>
                         </div>
                         <button type="button" class="btn btn-sm btn-danger" id="logoutBtnProfile">
                             <i class="mdi  mdi-power me-1"></i>

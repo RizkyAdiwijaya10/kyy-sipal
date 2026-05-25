@@ -121,11 +121,8 @@ class LoansController extends Controller
             }
 
             // Kirim notifikasi WhatsApp ke admin
-           
-            DB::commit();
-
             $loan->load('details.itemUnit.item');
-
+            DB::commit();
             $this->sendWhatsAppNotification($loan, 'peminjaman');
 
             return redirect()->route('user.loans.history')
@@ -139,12 +136,51 @@ class LoansController extends Controller
         }
     }
 
-    public function loanHistory()
+    public function loanHistory(Request $request)
     {
-        $loans = Loan::with('details.itemUnit.item')
-            ->where('user_id', auth()->id())
-            ->latest()
-            ->paginate(10);
+        $query = Loan::with('details.itemUnit.item')
+            ->where('user_id', auth()->id());
+
+        // Filter by status
+        if ($request->filled('status')) {
+            switch ($request->status) {
+                case 'terlambat':
+                    $query->where('status', 'borrowed')
+                        ->where('return_date', '<', now());
+                    break;
+                case 'return_pending':
+                    $query->where('return_request_status', 'pending');
+                    break;
+                case 'return_rejected':
+                    $query->where('return_request_status', 'rejected');
+                    break;
+                default:
+                    $query->where('status', $request->status);
+                    break;
+            }
+        }
+
+        // Filter by tanggal pinjam
+        if ($request->filled('date_from')) {
+            $query->whereDate('loan_date', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('loan_date', '<=', $request->date_to);
+        }
+
+        // Filter by search kode / nama item
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('loan_code', 'like', "%{$search}%")
+                ->orWhereHas('details.itemUnit.item', function ($q2) use ($search) {
+                    $q2->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $loans = $query->latest()->paginate(10)->withQueryString();
 
         return view('user.peminjaman.history', compact('loans'));
     }
@@ -244,20 +280,22 @@ class LoansController extends Controller
                 ->withInput();
         }
 
+        // Update data dalam transaksi
         DB::transaction(function () use ($loan, $request) {
             $loan->update([
-                'return_requested_at' => now(),
+                'return_requested_at'  => now(),
                 'return_request_notes' => $request->return_notes,
                 'return_request_status' => 'pending',
             ]);
         });
 
-        // Refresh data
+        // Load relasi SETELAH transaksi selesai
         $loan->refresh();
         $loan->load('details.itemUnit.item');
 
-        // Kirim notifikasi WhatsApp ke admin
+        // Kirim WA di LUAR transaksi
         $this->sendWhatsAppNotification($loan, 'pengembalian');
+
         return redirect()->route('user.loans.history')
             ->with('success', 'Pengajuan pengembalian berhasil dikirim. Silakan tunggu konfirmasi admin.');
     }
@@ -315,7 +353,7 @@ class LoansController extends Controller
     /**
      * Kirim notifikasi WhatsApp ke admin
      */
-   protected function sendWhatsAppNotification($loan, $type)
+    protected function sendWhatsAppNotification($loan, $type)
     {
         // Ambil semua admin yang memiliki nomor telepon
         $admins = User::where('role', 'admin')
@@ -327,18 +365,18 @@ class LoansController extends Controller
         }
 
         // Siapkan pesan
-        $title = $type == 'peminjaman' ? '📋 PENGAJUAN PEMINJAMAN BARU' : '📦 PENGAJUAN PENGEMBALIAN BARU';
+        $title = $type == 'peminjaman' ? 'PENGAJUAN PEMINJAMAN BARU' : 'PENGAJUAN PENGEMBALIAN BARU';
         
-        $message = "━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+        $message = "━━━━━━━━━━━━━━━━━━━━━━━━━\n";
         $message .= "      {$title}\n";
-        $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
-        $message .= "👤 Peminjam: " . auth()->user()->name . "\n";
-        $message .= "📝 Kode: " . $loan->loan_code . "\n";
-        $message .= "📅 Tgl Pinjam: " . $loan->loan_date->format('d/m/Y') . "\n";
-        $message .= "📅 Rencana Kembali: " . $loan->return_date->format('d/m/Y') . "\n";
-        $message .= "📦 Jumlah Item: " . $loan->details->count() . " barang\n";
+        $message .= "━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+        $message .= "Peminjam: " . auth()->user()->name . "\n";
+        $message .= "Kode: " . $loan->loan_code . "\n";
+        $message .= "Tgl Pinjam: " . $loan->loan_date->format('d/m/Y') . "\n";
+        $message .= "Rencana Kembali: " . $loan->return_date->format('d/m/Y') . "\n";
+        $message .= "Jumlah Item: " . $loan->details->count() . " barang\n";
         $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-        $message .= "🔔 Segera proses di aplikasi!";
+        $message .= "Segera proses di aplikasi!";
 
         foreach ($admins as $admin) {
 
