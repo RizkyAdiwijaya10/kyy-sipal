@@ -7,9 +7,6 @@ use Illuminate\Support\Facades\Log;
 
 class WhatsAppHelper
 {
-    /**
-     * Format nomor HP menjadi 62xxxxxxxx
-     */
     protected static function formatPhone($phone)
     {
         $phone = preg_replace('/[^0-9]/', '', $phone);
@@ -21,9 +18,6 @@ class WhatsAppHelper
         return $phone;
     }
 
-    /**
-     * Kirim pesan WhatsApp via Fonnte
-     */
     public static function sendMessage($target, $message)
     {
         $apiKey  = config('fonnte.token');
@@ -74,7 +68,6 @@ class WhatsAppHelper
             ]);
 
             return ['success' => false, 'error' => $data];
-
         } catch (\Exception $e) {
             Log::error('WhatsApp Exception', [
                 'target'  => $target,

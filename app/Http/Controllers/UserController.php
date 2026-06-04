@@ -5,25 +5,32 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $users = User::where('role', 'user')
-                ->orderBy('created_at', 'desc')
-                ->paginate(10);
-        
+        $query = User::query();
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        $users = $query->latest()->paginate(10)->withQueryString();
+
         return view('admin.users.index', compact('users'));
     }
 
-    /**
-     * Store a newly created user in storage.
-     */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
@@ -31,9 +38,9 @@ class UserController extends Controller
             'role' => 'required|in:admin,user',
         ]);
 
-        if ($validator->fails()) {
+        if ($request->fails()) {
             return redirect()->route('admin.users.index')
-                ->withErrors($validator)
+                ->withErrors($request)
                 ->withInput()
                 ->with('error', 'Gagal menambahkan user. Periksa kembali data Anda.');
         }
@@ -50,12 +57,9 @@ class UserController extends Controller
             ->with('success', 'User berhasil ditambahkan!');
     }
 
-    /**
-     * Update the specified user in storage.
-     */
     public function update(Request $request, User $user)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:20',
@@ -63,9 +67,9 @@ class UserController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
-        if ($validator->fails()) {
+        if ($request->fails()) {
             return redirect()->route('admin.users.index')
-                ->withErrors($validator)
+                ->withErrors($request)
                 ->withInput()
                 ->with('error', 'Gagal mengupdate user. Periksa kembali data Anda.');
         }
@@ -87,9 +91,7 @@ class UserController extends Controller
             ->with('success', 'User berhasil diupdate!');
     }
 
-    /**
-     * Remove the specified user from storage.
-     */
+
     public function destroy(User $user)
     {
         // Cegah menghapus user sendiri

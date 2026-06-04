@@ -12,6 +12,9 @@
                             <i class="mdi mdi-account-group me-2"></i> Data User
                         </h6>
                         <div class="d-flex gap-2 flex-nowrap">
+                            <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#filterModal">
+                                <i class="mdi mdi-filter"></i> Filter
+                            </button>
                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createUserModal">
                                 <i class="mdi mdi-plus"></i> Tambah User
                             </button>
@@ -41,6 +44,26 @@
                                 @endforeach
                             </ul>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+
+                    @if (request()->hasAny(['search', 'role']))
+                        <div class="alert alert-info mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="mdi mdi-filter me-2"></i>
+                                    <strong>Filter Aktif:</strong>
+                                    @if (request('search'))
+                                        <span class="badge bg-primary ms-2">Pencarian: "{{ request('search') }}"</span>
+                                    @endif
+                                    @if (request('role'))
+                                        <span class="badge bg-info ms-2">Role: {{ ucfirst(request('role')) }}</span>
+                                    @endif
+                                </div>
+                                <a href="{{ route('admin.users.index') }}" class="btn btn-sm btn-danger">
+                                    <i class="mdi mdi-close"></i> Hapus Filter
+                                </a>
+                            </div>
                         </div>
                     @endif
 
@@ -307,6 +330,49 @@
             </div>
         </div>
     @endforeach
+    <!-- Modal Filter -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="filterModalLabel">
+                    <i class="mdi mdi-filter me-2"></i> Filter User
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form method="GET" action="{{ route('admin.users.index') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="search" class="form-label">Cari Nama / Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white">
+                                <i class="mdi mdi-magnify text-muted"></i>
+                            </span>
+                            <input type="text" name="search" id="search"
+                                class="form-control border-start-0"
+                                placeholder="Nama atau email..." value="{{ request('search') }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Filter Berdasarkan Role</label>
+                        <select class="form-select" id="role" name="role">
+                            <option value="">Semua Role</option>
+                            <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                            <option value="user" {{ request('role') == 'user' ? 'selected' : '' }}>User</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="mdi mdi-filter"></i> Terapkan Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 @endsection
 

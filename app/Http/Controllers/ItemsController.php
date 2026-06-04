@@ -4,51 +4,47 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use App\Models\Category;
-use App\Models\SumberDana;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use App\Imports\ItemImport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ItemsController extends Controller
 {
-
-    public function index()
+    public function index(Request $request)
     {
-        $items = Item::with(['category', 'fundingSource', 'itemUnits'])
-        ->paginate(10);
+        $query = Item::with(['category', 'itemUnits'])
+                    ->withCount('itemUnits as item_unit_count')
+                    ->orderBy('created_at', 'desc');
 
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+       
+
+        $items      = $query->paginate(10)->withQueryString();
         $categories = Category::all();
-        $sumberDanas = SumberDana::all();
 
-        return view('admin.inventaris.barang.index', compact(
-            'items',
-            'categories',
-            'sumberDanas'
-        ));
+        return view('admin.inventaris.barang.index', compact('items', 'categories'));
     }
-
+    
 
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'category_id' => 'required|exists:categories,id',
-            'funding_source_id' => 'nullable|exists:funding_sources,id',
             'name' => 'required|string|max:200',
             'brand' => 'nullable|string|max:100',
             'model' => 'nullable|string|max:100',
             'specification' => 'nullable|string',
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
         Item::create($request->only([
             'category_id',
-            'funding_source_id',
             'name',
             'brand',
             'model',
@@ -62,24 +58,17 @@ class ItemsController extends Controller
 
     public function update(Request $request, Item $item)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'category_id' => 'required|exists:categories,id',
-            'funding_source_id' => 'nullable|exists:funding_sources,id',
             'name' => 'required|string|max:200',
             'brand' => 'nullable|string|max:100',
             'model' => 'nullable|string|max:100',
             'specification' => 'nullable|string',
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
 
         $item->update($request->only([
             'category_id',
-            'funding_source_id',
             'name',
             'brand',
             'model',
@@ -117,5 +106,4 @@ class ItemsController extends Controller
         return redirect()->route('items.index')
             ->with('success', 'Data berhasil diimport');
     }
-
 }

@@ -12,10 +12,16 @@
                             <i class="mdi mdi-cube me-2"></i> Data Unit Barang
                         </h6>
                         <div class="d-flex gap-2 flex-nowrap">
+                            <button class="btn btn-info btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#filterModal">
+                                    <i class="mdi mdi-filter"></i> Filter   
+                            </button>
+
                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#createUnitModal">
                                 <i class="mdi mdi-plus"></i> Tambah Unit Barang
                             </button>
+                                
                             <form id="importForm" action="{{ route('item-units.import') }}" method="POST"
                                 enctype="multipart/form-data" class="d-inline-flex align-items-center m-0">
                                 @csrf
@@ -60,7 +66,7 @@
                                 <span class="badge bg-warning ms-2">Kondisi: {{ request('condition') }}</span>
                             @endif
                         </div>
-                        <a href="{{ route('item-units.index') }}" class="btn btn-sm btn-light">
+                        <a href="{{ route('item-units.index') }}" class="btn btn-sm btn-danger">
                             <i class="mdi mdi-close"></i> Hapus Filter
                         </a>
                     </div>
@@ -119,6 +125,12 @@
                                 {{-- <td>{{ $unit->created_at->format('d/m/Y') }}</td> --}}
                                 <td>
                                     <div class="d-flex gap-1">
+                                        <button class="btn btn-info btn-sm btn-icon"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#showUnitModal{{ $unit->id }}"
+                                                title="Lihat Detail">
+                                            <i class="mdi mdi-eye"></i> Lihat
+                                        </button>
                                         <button class="btn btn-warning btn-sm btn-icon"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#editUnitModal{{ $unit->id }}">
@@ -352,6 +364,80 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Modal Show Unit Barang -->
+                <div class="modal fade" id="showUnitModal{{ $unit->id }}" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Detail Unit Barang</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th width="35%">Kode Inventaris</th>
+                                        <td width="5%">:</td>
+                                        <td>{{ $unit->inventory_code ?? '-' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Nama Barang</th>
+                                        <td>:</td>
+                                        <td>{{ $unit->item->name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>No. Seri</th>
+                                        <td>:</td>
+                                        <td>{{ $unit->serial_number ?? '-' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Kondisi</th>
+                                        <td>:</td>
+                                        <td>
+                                            @if($unit->condition == 'baik')
+                                                <span class="badge badge-success">Baik</span>
+                                            @elseif($unit->condition == 'rusak')
+                                                <span class="badge badge-danger">Rusak</span>
+                                            @elseif($unit->condition == 'maintenance')
+                                                <span class="badge badge-warning">Maintenance</span>
+                                            @else
+                                                <span class="badge badge-dark">Hilang</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Status</th>
+                                        <td>:</td>
+                                        <td>
+                                            @if($unit->status == 'tersedia')
+                                                <span class="badge badge-success">Tersedia</span>
+                                            @elseif($unit->status == 'dipinjam')
+                                                <span class="badge badge-info">Dipinjam</span>
+                                            @elseif($unit->status == 'dipesan')
+                                                <span class="badge badge-warning">Dipesan</span>
+                                            @else
+                                                <span class="badge badge-danger">Nonaktif</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Tanggal Dibuat</th>
+                                        <td>:</td>
+                                        <td>{{ $unit->created_at->format('d/m/Y H:i:s') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Terakhir Diupdate</th>
+                                        <td>:</td>
+                                        <td>{{ $unit->updated_at->format('d/m/Y H:i:s') }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 @endforeach
             </div>                         
         </div>
@@ -363,7 +449,9 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="filterModalLabel">Filter Unit Barang</h5>
+                <h5 class="modal-title" id="filterModalLabel">
+                    <i class="mdi mdi-filter me-2"></i> Filter Unit Barang
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="GET" action="{{ route('item-units.index') }}">

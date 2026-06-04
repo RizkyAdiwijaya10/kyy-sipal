@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ItemsController;
-use App\Http\Controllers\SumberDanaController;
 use App\Http\Controllers\ItemsUnitController;
 use App\Http\Controllers\LoansController;
 use App\Http\Controllers\AdminLoanController;
@@ -25,15 +24,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
-    // ========== ROUTES UNTUK ADMIN ==========
     Route::middleware(['admin'])->group(function () {
         
-        // Master Data (CRUD)
         Route::resource('categories', CategoryController::class);
         Route::post('/categories/import', [CategoryController::class, 'import'])->name('categories.import');
-
-        Route::resource('sumber-dana', SumberDanaController::class);
-        Route::post('sumber-dana/import', [SumberDanaController::class, 'import'])->name('sumber-dana.import');
 
         Route::resource('items', ItemsController::class);
         Route::post('items/import', [ItemsController::class, 'import'])->name('items.import');
@@ -42,7 +36,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('item-units/import', [ItemsUnitController::class, 'import'])->name('item-units.import');
 
         
-        // Manajemen Peminjaman (Admin)
         Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/loans', [AdminLoanController::class, 'index'])->name('loans.index');
             Route::get('/loans/{loan}', [AdminLoanController::class, 'show'])->name('loans.show');
@@ -70,13 +63,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
     });
     
-    // ========== ROUTES UNTUK USER ==========
     Route::middleware(['user'])->prefix('user')->name('user.')->group(function () {
         // Daftar Barang
+
         Route::get('/items', [LoansController::class, 'availableItems'])->name('items.index');
         Route::get('/items/{item}', [LoansController::class, 'showItem'])->name('items.show');
+        Route::get('/loans/download-template', [LoansController::class, 'downloadTemplate'])->name('loans.download-template');      
         
-        // Peminjaman (SEMUA menggunakan LoansController yang sudah digabung)
         Route::get('/loans/create', [LoansController::class, 'createLoan'])->name('loans.create');
         Route::post('/loans', [LoansController::class, 'storeLoan'])->name('loans.store');
         Route::get('/loans/history', [LoansController::class, 'loanHistory'])->name('loans.history');
@@ -91,7 +84,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/returns/{loan}', [LoansController::class, 'returnShow'])->name('returns.show');
         Route::delete('/returns/{loan}', [LoansController::class, 'returnCancel'])->name('returns.cancel');
         Route::get('/loans/{loan}/json', [LoansController::class, 'getDetailJson'])->name('loans.json');
-
         // Route::get('/loans/return-requests', [LoansController::class, 'returnRequests'])->name('loans.return-requests');
         // Route::get('/loans/{loan}/return-request', [LoansController::class, 'createReturnRequest'])->name('loans.return-request.create');
         // Route::post('/loans/{loan}/return-request', [LoansController::class, 'storeReturnRequest'])->name('loans.return-request.store');

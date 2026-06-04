@@ -6,7 +6,6 @@ use Illuminate\Database\Seeder;
 use App\Models\Category;
 use App\Models\Item;
 use App\Models\ItemUnit;
-use App\Models\SumberDana;
 use Illuminate\Support\Facades\DB;
 
 class InventorySeeder extends Seeder
@@ -22,9 +21,6 @@ class InventorySeeder extends Seeder
             $elektronik = Category::firstOrCreate(['name' => 'ELEKTRONIK']);
             $meubeler = Category::firstOrCreate(['name' => 'MEUBELER']);
 
-            $funding = SumberDana::firstOrCreate([
-                'name' => 'APBN/APBD'
-            ]);
 
             /*
             =====================================================
@@ -35,7 +31,6 @@ class InventorySeeder extends Seeder
             $trainer = Item::create([
                 'name' => 'Basic Electronic Trainer',
                 'category_id' => $alatLab->id,
-                'funding_source_id' => $funding->id,
                 'brand' => null,
                 'model' => null,
                 'specification' => null,
@@ -60,7 +55,6 @@ class InventorySeeder extends Seeder
             $pcI9 = Item::create([
                 'name' => 'PC Desktop i9',
                 'category_id' => $elektronik->id,
-                'funding_source_id' => $funding->id,
                 'brand' => 'Axioo',
                 'model' => 'MyPC Pro H61MSC i9-13900F',
                 
@@ -78,7 +72,6 @@ class InventorySeeder extends Seeder
             $pcI7 = Item::create([
                 'name' => 'PC Desktop i7',
                 'category_id' => $elektronik->id,
-                'funding_source_id' => $funding->id,
                 'brand' => 'Acer',
                 'model' => 'Veriton M R01-A3 i7-12700',
                 
@@ -98,7 +91,6 @@ class InventorySeeder extends Seeder
             $laptop = Item::create([
                 'name' => 'Laptop i9',
                 'category_id' => $elektronik->id,
-                'funding_source_id' => $funding->id,
                 'brand' => 'Acer',
                 'model' => 'Nitro ANX Intel Ci9',
                 
@@ -118,7 +110,6 @@ class InventorySeeder extends Seeder
             $ups700 = Item::create([
                 'name' => 'UPS CP700 (700VA/350W)',
                 'category_id' => $elektronik->id,
-                'funding_source_id' => $funding->id,
                 'brand' => 'CP700',
                 'model' => '700VA/350W',
                 
@@ -138,7 +129,6 @@ class InventorySeeder extends Seeder
             $headset = Item::create([
                 'name' => 'Headset Tali',
                 'category_id' => $elektronik->id,
-                'funding_source_id' => $funding->id,
                 'brand' => 'Sony',
                 'model' => 'MDR-7506',
                 
@@ -164,7 +154,6 @@ class InventorySeeder extends Seeder
             $mejaKerja = Item::create([
                 'name' => 'Meja Kerja',
                 'category_id' => $meubeler->id,
-                'funding_source_id' => $funding->id,
                 'brand' => 'Ferro',
                 'model' => 'Elegant Office System WDB-04PD',
                 
@@ -184,7 +173,6 @@ class InventorySeeder extends Seeder
             $mejaKomputer = Item::create([
                 'name' => 'Meja Komputer',
                 'category_id' => $meubeler->id,
-                'funding_source_id' => $funding->id,
                 'brand' => 'Ferro',
                 'model' => 'Elegant Office System CD-08A',
                 

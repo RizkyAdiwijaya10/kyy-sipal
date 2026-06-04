@@ -12,7 +12,6 @@ use App\Helpers\WhatsAppHelper;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 
 class LoansController extends Controller
 {
@@ -22,44 +21,42 @@ class LoansController extends Controller
         $this->middleware('user');
     }
 
-    // ==================== PEMINJAMAN ====================
-    
     public function availableItems()
     {
         $items = Item::with([
             'category',
             'itemUnits' => function ($q) {
                 $q->where('status', 'tersedia')
-                  ->where('condition', 'baik');
+                    ->where('condition', 'baik');
             }
         ])
-        ->whereHas('itemUnits', function ($q) {
-            $q->where('status', 'tersedia')
-              ->where('condition', 'baik');
-        })
-        ->get();
+            ->whereHas('itemUnits', function ($q) {
+                $q->where('status', 'tersedia')
+                    ->where('condition', 'baik');
+            })
+            ->get();
 
         return view('user.item.index', compact('items'));
     }
-    
+
     public function createLoan()
     {
         $items = Item::withCount([
             'itemUnits as available_units_count' => function ($q) {
                 $q->where('status', 'tersedia')
-                  ->where('condition', 'baik');
+                    ->where('condition', 'baik');
             }
         ])
-        ->having('available_units_count', '>', 0)
-        ->orderBy('name')
-        ->get();
+            ->having('available_units_count', '>', 0)
+            ->orderBy('name')
+            ->get();
 
         return view('user.peminjaman.create', compact('items'));
     }
 
     public function storeLoan(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'loan_date' => 'required|date|after_or_equal:today',
             'return_date' => 'required|date|after:loan_date',
             'purpose' => 'required|string|max:500',
@@ -69,19 +66,12 @@ class LoansController extends Controller
             'items.*.quantity' => 'required|integer|min:1',
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
         DB::beginTransaction();
 
         try {
-            // Upload surat
+
             $suratPath = $request->file('surat')->store('surat_peminjaman', 'public');
 
-            // Buat peminjaman
             $loan = Loan::create([
                 'loan_code' => Loan::generateLoanCode(),
                 'user_id' => auth()->id(),
@@ -92,7 +82,7 @@ class LoansController extends Controller
                 'notes' => $suratPath,
             ]);
 
-            // Proses setiap item
+
             foreach ($request->items as $itemData) {
                 $itemId = $itemData['item_id'];
                 $quantity = $itemData['quantity'];
@@ -120,14 +110,12 @@ class LoansController extends Controller
                 }
             }
 
-            // Kirim notifikasi WhatsApp ke admin
             $loan->load('details.itemUnit.item');
             DB::commit();
             $this->sendWhatsAppNotification($loan, 'peminjaman');
 
             return redirect()->route('user.loans.history')
                 ->with('success', 'Pengajuan peminjaman berhasil dikirim. Kode: ' . $loan->loan_code);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()
@@ -141,7 +129,6 @@ class LoansController extends Controller
         $query = Loan::with('details.itemUnit.item')
             ->where('user_id', auth()->id());
 
-        // Filter by status
         if ($request->filled('status')) {
             switch ($request->status) {
                 case 'terlambat':
@@ -160,7 +147,6 @@ class LoansController extends Controller
             }
         }
 
-        // Filter by tanggal pinjam
         if ($request->filled('date_from')) {
             $query->whereDate('loan_date', '>=', $request->date_from);
         }
@@ -174,9 +160,9 @@ class LoansController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('loan_code', 'like', "%{$search}%")
-                ->orWhereHas('details.itemUnit.item', function ($q2) use ($search) {
-                    $q2->where('name', 'like', "%{$search}%");
-                });
+                    ->orWhereHas('details.itemUnit.item', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -219,22 +205,19 @@ class LoansController extends Controller
             ->with('success', 'Peminjaman berhasil dibatalkan');
     }
 
-    // ==================== PENGAJUAN PENGEMBALIAN ====================
 
     public function returnIndex()
     {
-        // Peminjaman yang bisa diajukan pengembalian
         $loans = Loan::with('details.itemUnit.item')
             ->where('user_id', auth()->id())
             ->where('status', 'borrowed')
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->whereNull('return_requested_at')
-                  ->orWhere('return_request_status', 'rejected');
+                    ->orWhere('return_request_status', 'rejected');
             })
             ->latest()
             ->paginate(10);
 
-        // Pengajuan yang masih pending
         $pendingReturnRequests = Loan::with('details.itemUnit.item')
             ->where('user_id', auth()->id())
             ->whereNotNull('return_requested_at')
@@ -270,15 +253,9 @@ class LoansController extends Controller
                 ->with('error', 'Tidak dapat mengajukan pengembalian untuk peminjaman ini.');
         }
 
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'return_notes' => 'nullable|string|max:500',
         ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
 
         // Update data dalam transaksi
         DB::transaction(function () use ($loan, $request) {
@@ -289,11 +266,9 @@ class LoansController extends Controller
             ]);
         });
 
-        // Load relasi SETELAH transaksi selesai
         $loan->refresh();
         $loan->load('details.itemUnit.item');
 
-        // Kirim WA di LUAR transaksi
         $this->sendWhatsAppNotification($loan, 'pengembalian');
 
         return redirect()->route('user.loans.history')
@@ -338,21 +313,13 @@ class LoansController extends Controller
             ->with('success', 'Pengajuan pengembalian berhasil dibatalkan.');
     }
 
-    /**
-     * Cek apakah peminjaman bisa diajukan pengembalian
-     */
     private function canRequestReturn($loan)
     {
-        return $loan->status === 'borrowed' && 
-               is_null($loan->return_requested_at) && 
-               is_null($loan->actual_return_date);
+        return $loan->status === 'borrowed' &&
+            is_null($loan->return_requested_at) &&
+            is_null($loan->actual_return_date);
     }
 
-    // ==================== NOTIFIKASI WHATSAPP ====================
-
-    /**
-     * Kirim notifikasi WhatsApp ke admin
-     */
     protected function sendWhatsAppNotification($loan, $type)
     {
         // Ambil semua admin yang memiliki nomor telepon
@@ -366,7 +333,7 @@ class LoansController extends Controller
 
         // Siapkan pesan
         $title = $type == 'peminjaman' ? 'PENGAJUAN PEMINJAMAN BARU' : 'PENGAJUAN PENGEMBALIAN BARU';
-        
+
         $message = "━━━━━━━━━━━━━━━━━━━━━━━━━\n";
         $message .= "      {$title}\n";
         $message .= "━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
@@ -397,19 +364,14 @@ class LoansController extends Controller
         }
     }
 
-    // ==================== JSON FOR MODAL DETAIL ====================
-
-    /**
-     * Get loan detail as JSON for modal (AJAX)
-     */
     public function getDetailJson(Loan $loan)
     {
         if ($loan->user_id !== auth()->id()) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
-        
+
         $loan->load(['user', 'details.itemUnit.item', 'approver']);
-        
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -430,7 +392,7 @@ class LoansController extends Controller
                 'return_requested_at' => $loan->return_requested_at ? $loan->return_requested_at->format('d F Y H:i') : null,
                 'return_request_notes' => $loan->return_request_notes,
                 'return_request_status' => $loan->return_request_status,
-                'details' => $loan->details->map(function($detail) {
+                'details' => $loan->details->map(function ($detail) {
                     return [
                         'inventory_code' => $detail->itemUnit->inventory_code ?? '-',
                         'item_name' => $detail->itemUnit->item->name,
@@ -444,27 +406,48 @@ class LoansController extends Controller
         ]);
     }
 
-    // ==================== HELPER BADGE ====================
-
     private function getStatusBadge($status)
     {
-        switch($status) {
-            case 'pending': return '<span class="badge bg-warning text-dark">Pending</span>';
-            case 'approved': return '<span class="badge bg-primary">Disetujui</span>';
-            case 'borrowed': return '<span class="badge bg-info text-dark">Dipinjam</span>';
-            case 'returned': return '<span class="badge bg-success">Dikembalikan</span>';
-            case 'rejected': return '<span class="badge bg-danger">Ditolak</span>';
-            default: return '<span class="badge bg-secondary">' . $status . '</span>';
+        switch ($status) {
+            case 'pending':
+                return '<span class="badge bg-warning text-dark">Pending</span>';
+            case 'approved':
+                return '<span class="badge bg-primary">Disetujui</span>';
+            case 'borrowed':
+                return '<span class="badge bg-info text-dark">Dipinjam</span>';
+            case 'returned':
+                return '<span class="badge bg-success">Dikembalikan</span>';
+            case 'rejected':
+                return '<span class="badge bg-danger">Ditolak</span>';
+            default:
+                return '<span class="badge bg-secondary">' . $status . '</span>';
         }
     }
 
     private function getConditionBadge($condition)
     {
-        switch($condition) {
-            case 'baik': return '<span class="badge bg-success">Baik</span>';
-            case 'rusak': return '<span class="badge bg-danger">Rusak</span>';
-            case 'maintenance': return '<span class="badge bg-warning">Maintenance</span>';
-            default: return '<span class="badge bg-secondary">' . $condition . '</span>';
+        switch ($condition) {
+            case 'baik':
+                return '<span class="badge bg-success">Baik</span>';
+            case 'rusak':
+                return '<span class="badge bg-danger">Rusak</span>';
+            case 'maintenance':
+                return '<span class="badge bg-warning">Maintenance</span>';
+            default:
+                return '<span class="badge bg-secondary">' . $condition . '</span>';
         }
     }
+
+    public function downloadTemplate()
+    {
+        $templatePath = storage_path('app/template/Template_Surat_Peminjaman.docx');
+
+        if (!file_exists($templatePath)) {
+            return redirect()->back()->with('error', 'Template surat peminjaman tidak ditemukan.');
+        }
+
+        return response()->download($templatePath, 'Template_Surat_Peminjaman.docx');
+    }
+
+
 }

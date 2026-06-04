@@ -4,15 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\category;
-use App\Models\SumberDana;
-use App\Models\itemUnits;
-use PhpOffice\PhpSpreadsheet\Calculation\Category as CalculationCategory;
+// use App\Models\itemUnits;
+// use PhpOffice\PhpSpreadsheet\Calculation\Category as CalculationCategory;
 
 class Item extends Model
 {
     protected $fillable = [
         'category_id',
-        'funding_source_id',
         'name',
         'brand',
         'model',
@@ -23,11 +21,6 @@ class Item extends Model
     public function category()
     {
         return $this->belongsTo(category::class);
-    }
-
-    public function fundingSource()
-    {
-        return $this->belongsTo(SumberDana::class);
     }
 
     public function itemUnits()

@@ -196,7 +196,7 @@
                                 @endif
                             </td>
                             <td>
-                                <span>
+                                <span class="badge bg-secondary">
                                     {{ $loan->details->count() }} barang
                                 </span>
                             </td>
@@ -419,7 +419,7 @@
         <div class="modal-content">
             <div class="modal-header" id="detailModalHeader">
                 <h5 class="modal-title">
-                    <i class="mdi mdi-information-outline me-2"></i>
+                    {{-- <i class="mdi mdi-information-outline me-2"></i> --}}
                     Detail Peminjaman
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

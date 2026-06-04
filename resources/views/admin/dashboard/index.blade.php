@@ -3,7 +3,6 @@
 @section('title', 'Dashboard Admin')
 
 @section('content')
-{{-- STATISTIK UNIT & KATEGORI --}}
 <div class="row">
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-primary shadow h-100 py-2">
@@ -78,7 +77,6 @@
     </div>
 </div>
 
-{{-- PEMINJAMAN TERBARU --}}
 <div class="row">
     <div class="col-12 mb-4">
         <div class="card shadow">
@@ -132,7 +130,7 @@
                                 </td>
                             </tr>
                             @empty
-                            <tr><td colspan="6" class="text-center">Tidak ada data peminjaman terbaru</td><\/tr>
+                            <tr><td colspan="6" class="text-center">Tidak ada data peminjaman terbaru</td>
                             @endforelse
                         </tbody>
                     </table>
@@ -142,7 +140,6 @@
     </div>
 </div>
 
-{{-- BARANG STOK RENDAH & BARANG TERBARU --}}
 <div class="row">
     <div class="col-xl-6 col-lg-6 mb-4">
         <div class="card shadow">
@@ -211,54 +208,6 @@
     </div>
 </div>
 
-{{-- STATISTIK RINGKAS
-<div class="row">
-    <div class="col-12">
-        <div class="card shadow">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="mdi mdi-chart-line me-2"></i> Ringkasan Sistem
-                </h6>
-            </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-md-3 mb-3">
-                        <div class="card bg-light">
-                            <div class="card-body">
-                                <h3 class="mb-0">{{ $totalUsers }}</h3>
-                                <small class="text-muted">Total Pengguna</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="card bg-light">
-                            <div class="card-body">
-                                <h3 class="mb-0">{{ $totalLoans }}</h3>
-                                <small class="text-muted">Total Peminjaman</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="card bg-light">
-                            <div class="card-body">
-                                <h3 class="mb-0">{{ $totalUnits }}</h3>
-                                <small class="text-muted">Total Unit</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="card bg-light">
-                            <div class="card-body">
-                                <h3 class="mb-0">{{ $totalCategories }}</h3>
-                                <small class="text-muted">Kategori</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> --}}
 
 @push('styles')
 <style>

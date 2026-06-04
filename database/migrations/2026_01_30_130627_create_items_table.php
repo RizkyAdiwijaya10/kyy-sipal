@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('funding_source_id')->nullable()->constrained()->nullOnDelete();
             $table->string('name'); // Nama barang
             $table->string('brand')->nullable(); // Merek
             $table->string('model')->nullable(); // Tipe/Model
