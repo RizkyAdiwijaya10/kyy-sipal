@@ -3,39 +3,55 @@
 @section('title', 'Ajukan Peminjaman')
 
 @section('content')
-    <div class="row">
-        <div class="col-md-8">
+    <div class="loan-page">
+
+        {{-- Main Form --}}
+        <div class="loan-main">
             <div class="card">
-                <div class="card-body">
-                    <div class="card-header py-3 d-flex justify-content-between align-items-center mb-4">
-                        <h6 class="card-title m-0 fw-bold text-primary">
-                            <i class="mdi mdi-clipboard-list me-2"></i> Peminjaman Barang 
-                        </h6>
+                <div class="card-header py-3 d-flex justify-content-between align-items-center mb-4">
+                    <h6 class="card-title m-0 fw-bold text-primary">
+                        <i class="mdi mdi-clipboard-list me-2"></i> Ajukan Peminjaman
+                    </h6>
+                </div>
+                {{-- <div class="card-header-custom">
+                    <div class="icon-wrap">
+                        <i class="mdi mdi-clipboard-list"></i>
                     </div>
+                    <h2>Ajukan Peminjaman</h2>
+                </div> --}}
+                <div class="card-body">
+
                     @if (session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <i class="mdi mdi-check-circle me-2"></i>
-                            {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <div class="alert-custom alert-success-custom">
+                            <i class="mdi mdi-check-circle"></i>
+                            <span>{{ session('success') }}</span>
+                            <button type="button" class="alert-close" data-bs-dismiss="alert">
+                                <i class="mdi mdi-close"></i>
+                            </button>
                         </div>
                     @endif
 
                     @if (session('error'))
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="mdi mdi-alert-circle me-2"></i>
-                            {{ session('error') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <div class="alert-custom alert-danger-custom">
+                            <i class="mdi mdi-alert-circle"></i>
+                            <span>{{ session('error') }}</span>
+                            <button type="button" class="alert-close" data-bs-dismiss="alert">
+                                <i class="mdi mdi-close"></i>
+                            </button>
                         </div>
                     @endif
 
                     @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <strong>Terjadi Kesalahan:</strong>
-                            <ul class="mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
+                        <div class="alert-custom alert-danger-custom">
+                            <i class="mdi mdi-alert-circle"></i>
+                            <div>
+                                <strong>Terjadi kesalahan:</strong>
+                                <ul class="mb-0 mt-1">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
                         </div>
                     @endif
 
@@ -43,100 +59,117 @@
                         id="loanForm">
                         @csrf
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Tanggal Pinjam</label>
+                        {{-- Tanggal --}}
+                        <div class="form-row-2">
+                            <div class="field">
+                                <label class="field-label">
+                                    Tanggal Pinjam <span class="req"></span>
+                                </label>
                                 <input type="date" name="loan_date" class="form-control"
                                     value="{{ old('loan_date', date('Y-m-d')) }}" min="{{ date('Y-m-d') }}" required>
                             </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Rencana Kembali</label>
+                            <div class="field">
+                                <label class="field-label">
+                                    Rencana Kembali <span class="req"></span>
+                                </label>
                                 <input type="date" name="return_date" class="form-control"
                                     value="{{ old('return_date', date('Y-m-d', strtotime('+7 days'))) }}"
                                     min="{{ date('Y-m-d', strtotime('+1 day')) }}" required>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Tujuan Peminjaman</label>
+                        {{-- Tujuan --}}
+                        <div class="field">
+                            <label class="field-label">
+                                Tujuan Peminjaman <span class="req"></span>
+                            </label>
                             <textarea name="purpose" class="form-control" rows="3"
-                                placeholder="Contoh: Praktikum Laboratorium, Penelitian Skripsi, Kegiatan Organisasi, dll" required>{{ old('purpose') }}</textarea>
-                            <small class="text-muted">Minimal 10 karakter</small>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Upload Surat Peminjaman (PDF)<a
-                                    href="{{ route('user.loans.download-template') }}" class="text-primary">
-                                    {{-- <i class="mdi mdi-download me-1"></i> --}}
-                                    Download Template Surat Peminjaman
-                                </a></label>
-                            <input type="file" name="surat" class="form-control" accept="application/pdf" required>
-                            <small class="text-muted">Maksimal 2MB, format PDF</small>
+                                placeholder="Contoh: Praktikum Laboratorium, Penelitian Skripsi, Kegiatan Organisasi..." required>{{ old('purpose') }}</textarea>
+                            <small class="field-hint">Minimal 10 karakter</small>
                         </div>
 
-                        <hr class="my-4">
-
-                        <h5 class="mb-3">Daftar Barang yang Dipinjam</h5>
-
-                        <div id="items-container">
-                            <div class="item-row card mb-3">
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <label class="form-label">Pilih Barang</label>
-                                            <select name="items[0][item_id]" class="form-control item-select" data-index="0"
-                                                required>
-                                                <option value="">-- Pilih Barang --</option>
-                                                @foreach ($items as $item)
-                                                    <option value="{{ $item->id }}"
-                                                        data-stok="{{ $item->available_units_count }}"
-                                                        data-nama="{{ $item->name }}"
-                                                        {{ $item->available_units_count == 0 ? 'disabled' : '' }}>
-                                                        {{ $item->name }}
-                                                        @if ($item->brand || $item->model)
-                                                            ({{ $item->brand }} {{ $item->model }})
-                                                        @endif
-                                                        {{-- - Stok: {{ $item->available_units_count }} unit --}}
-                                                        @if ($item->available_units_count == 0)
-                                                            (Habis)
-                                                        @endif
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Jumlah</label>
-                                            <input type="number" name="items[0][quantity]"
-                                                class="form-control quantity-input" data-index="0" value="1"
-                                                min="1" required>
-                                        </div>
-                                        <div class="col-md-3 d-flex align-items-end">
-                                            <button type="button" class="btn btn-danger remove-item"
-                                                style="display: none;">
-                                                <i class="mdi mdi-delete"></i> Hapus
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="row mt-2">
-                                        <div class="col-12">
-                                            <small class="text-muted info-stok" id="info-stok-0"></small>
-                                        </div>
-                                    </div>
-                                </div>
+                        {{-- Upload Surat --}}
+                        <div class="field">
+                            <label class="field-label">
+                                Surat Peminjaman (PDF) <span class="req"></span>
+                                &nbsp;
+                                <a href="{{ route('user.loans.download-template') }}" class="link-download">
+                                    <i class="mdi mdi-download"></i> Unduh Template
+                                </a>
+                            </label>
+                            <div class="file-upload-area" id="fileUploadArea">
+                                <i class="mdi mdi-file-upload-outline"></i>
+                                <p class="file-upload-text">Klik untuk memilih file PDF</p>
+                                <p class="file-upload-hint">Maksimal 2 MB</p>
+                                <input type="file" name="surat" id="suratInput" accept="application/pdf" required>
+                            </div>
+                            <div id="fileSelected" class="file-selected" style="display:none;">
+                                <i class="mdi mdi-file-pdf-box"></i>
+                                <span id="fileName"></span>
+                                <button type="button" id="removeFile">
+                                    <i class="mdi mdi-close"></i>
+                                </button>
                             </div>
                         </div>
 
-                        <div class="mb-3 d-flex align-items-center">
-                            <button type="button" class="btn btn-secondary" id="addItemBtn">
-                                <i class="mdi mdi-plus"></i> Tambah Barang Lain
-                            </button>
+                        {{-- Section Divider --}}
+                        <div class="section-divider">
+                            <span>Daftar Barang</span>
                         </div>
 
-                        <div class="mt-4 d-flex justify-content-between">
-                            <a href="{{ route('user.items.index') }}" class="btn btn-light">
+                        {{-- Items --}}
+                        <div id="items-container">
+                            <div class="item-card">
+                                {{-- <div class="item-card-header">
+                                    <span class="item-label">Barang #1</span>
+                                </div> --}}
+                                <div class="form-row-3">
+                                    <div class="field mb-0">
+                                        <label class="field-label">Pilih Barang</label>
+                                        <select name="items[0][item_id]" class="form-control item-select" data-index="0"
+                                            required>
+                                            <option value="">— Pilih barang —</option>
+                                            @foreach ($items as $item)
+                                                <option value="{{ $item->id }}"
+                                                    data-stok="{{ $item->available_units_count }}"
+                                                    {{ $item->available_units_count == 0 ? 'disabled' : '' }}>
+                                                    {{ $item->name }}
+                                                    @if ($item->brand || $item->model)
+                                                        ({{ $item->brand }} {{ $item->model }})
+                                                    @endif
+                                                    @if ($item->available_units_count == 0)
+                                                        — Habis
+                                                    @endif
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="field mb-0">
+                                        <label class="field-label">Jumlah</label>
+                                        <input type="number" name="items[0][quantity]" class="form-control quantity-input"
+                                            data-index="0" value="1" min="1" required>
+                                    </div>
+                                    <div class="field mb-0 field-action">
+                                        <label class="field-label invisible">x</label>
+                                        <button type="button" class="btn-remove-item" style="display:none;">
+                                            <i class="mdi mdi-trash-can-outline"></i> Hapus
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="stock-info" id="info-stok-0"></div>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn-add-item" id="addItemBtn">
+                            <i class="mdi mdi-plus"></i> Tambah barang lain
+                        </button>
+
+                        {{-- Actions --}}
+                        <div class="form-actions">
+                            <a href="{{ route('user.items.index') }}" class="btn-back">
                                 <i class="mdi mdi-arrow-left"></i> Kembali
                             </a>
-                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <button type="submit" class="btn-submit" id="submitBtn">
                                 <i class="mdi mdi-send"></i> Ajukan Peminjaman
                             </button>
                         </div>
@@ -146,362 +179,833 @@
             </div>
         </div>
 
-        <div class="col-md-4">
+        {{-- Sidebar --}}
+        <div class="loan-sidebar">
             <div class="card">
+                <div class="card-header-custom">
+                    <div class="icon-wrap icon-wrap-warning">
+                        <i class="mdi mdi-information-outline"></i>
+                    </div>
+                    <h2>Informasi</h2>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="mdi mdi-information-outline text-primary me-2"></i>
-                        Informasi Peminjaman
-                    </h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2">
-                            <i class="mdi mdi-clock-outline text-info me-2"></i>
-                            Maksimal peminjaman 14 hari
+                    <ul class="info-list">
+                        <li>
+                            <i class="mdi mdi-clock-outline info-icon-info"></i>
+                            <span>Maksimal peminjaman <strong>14 hari</strong></span>
                         </li>
-                        <li class="mb-2">
-                            <i class="mdi mdi-file-pdf text-danger me-2"></i>
-                            Surat peminjaman wajib diupload
+                        <li>
+                            <i class="mdi mdi-file-pdf-box info-icon-danger"></i>
+                            <span>Surat peminjaman wajib diupload</span>
                         </li>
-                        <li class="mb-2">
-                            <i class="mdi mdi-check-circle text-success me-2"></i>
-                            Maksimal 5 jenis barang
+                        <li>
+                            <i class="mdi mdi-check-all info-icon-success"></i>
+                            <span>Maksimal <strong>5 jenis</strong> barang</span>
                         </li>
-                        <li class="mb-2">
-                            <i class="mdi mdi-alert-circle text-warning me-2"></i>
-                            Maksimal 10 unit per barang
+                        <li>
+                            <i class="mdi mdi-alert-circle-outline info-icon-warning"></i>
+                            <span>Maksimal <strong>10 unit</strong> per barang</span>
                         </li>
                     </ul>
 
-                    <hr>
+                    <hr class="sidebar-divider">
 
-                    <div id="summary">
-                        <h6>Ringkasan Peminjaman:</h6>
-                        <div id="summary-content">
-                            <p class="text-muted">Belum ada barang dipilih</p>
+                    <p class="summary-label">Ringkasan Peminjaman</p>
+                    <div id="summary-content">
+                        <div class="summary-empty">
+                            <i class="mdi mdi-cart-off"></i>
+                            <span>Belum ada barang dipilih</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
+
+    <style>
+        /* ── Layout ─────────────────────────────────────────── */
+        .loan-page {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .loan-page {
+                grid-template-columns: 1fr;
+            }
+
+            .loan-sidebar {
+                display: none;
+            }
+        }
+
+        /* ── Card ────────────────────────────────────────────── */
+        .card {
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: none;
+        }
+
+        .card-header-custom {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fff;
+        }
+
+        .card-header-custom h2 {
+            font-size: 15px;
+            font-weight: 600;
+            margin: 0;
+            color: #1a1a2e;
+        }
+
+        .icon-wrap {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #e8f0fe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-wrap i {
+            font-size: 16px;
+            color: #1967d2;
+        }
+
+        .icon-wrap-warning {
+            background: #fff3e0;
+        }
+
+        .icon-wrap-warning i {
+            color: #e65100;
+        }
+
+        .card-body {
+            padding: 1.25rem;
+            background: #fff;
+        }
+
+        /* ── Alerts ──────────────────────────────────────────── */
+        .alert-custom {
+            padding: .75rem 1rem;
+            border-radius: 8px;
+            font-size: 13px;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .alert-custom i {
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .alert-success-custom {
+            background: #e6f4ea;
+            color: #137333;
+        }
+
+        .alert-danger-custom {
+            background: #fce8e6;
+            color: #c5221f;
+        }
+
+        .alert-close {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+            opacity: .7;
+            padding: 0;
+        }
+
+        /* ── Form rows ───────────────────────────────────────── */
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 130px 110px;
+            gap: 12px;
+        }
+
+        @media (max-width: 576px) {
+
+            .form-row-2,
+            .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Fields ──────────────────────────────────────────── */
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 12px;
+        }
+
+        .field.mb-0 {
+            margin-bottom: 0;
+        }
+
+        .field-label {
+            font-size: 13px;
+            color: #5f6368;
+            font-weight: 500;
+        }
+
+        .req {
+            color: #c5221f;
+            margin-left: 2px;
+        }
+
+        .field-hint {
+            font-size: 12px;
+            color: #9aa0a6;
+        }
+
+        .invisible {
+            visibility: hidden;
+        }
+
+        .field-action {
+            justify-content: flex-end;
+        }
+
+        /* ── Form controls ───────────────────────────────────── */
+        .form-control {
+            width: 100%;
+            font-size: 14px;
+            padding: 8px 10px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            background: #fff;
+            color: #202124;
+            outline: none;
+            transition: border-color .15s, box-shadow .15s;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            border-color: #1967d2;
+            box-shadow: 0 0 0 3px rgba(25, 103, 210, .12);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 85px;
+            line-height: 1.5;
+        }
+
+        /* ── File upload ─────────────────────────────────────── */
+        .link-download {
+            font-size: 12px;
+            color: #1967d2;
+            text-decoration: none;
+        }
+
+        .link-download:hover {
+            text-decoration: underline;
+        }
+
+        .file-upload-area {
+            border: 1px dashed #dadce0;
+            border-radius: 8px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            background: #f8f9fa;
+            transition: border-color .15s, background .15s;
+        }
+
+        .file-upload-area:hover {
+            border-color: #1967d2;
+            background: #e8f0fe;
+        }
+
+        .file-upload-area i {
+            font-size: 28px;
+            color: #9aa0a6;
+        }
+
+        .file-upload-area input[type=file] {
+            display: none;
+        }
+
+        .file-upload-text {
+            font-size: 13px;
+            color: #5f6368;
+            margin: 0;
+        }
+
+        .file-upload-hint {
+            font-size: 11px;
+            color: #9aa0a6;
+            margin: 0;
+        }
+
+        .file-selected {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #e6f4ea;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #137333;
+        }
+
+        .file-selected i {
+            font-size: 18px;
+        }
+
+        .file-selected span {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-selected button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #137333;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        /* ── Section divider ─────────────────────────────────── */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 1.5rem 0 1rem;
+        }
+
+        .section-divider span {
+            font-size: 12px;
+            font-weight: 600;
+            color: #9aa0a6;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .section-divider::before,
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e9ecef;
+        }
+
+        /* ── Item card ───────────────────────────────────────── */
+        .item-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .item-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .item-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #9aa0a6;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .stock-info {
+            font-size: 12px;
+            color: #5f6368;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stock-info .ok {
+            color: #137333;
+        }
+
+        .stock-info .empty {
+            color: #c5221f;
+        }
+
+        /* ── Buttons ─────────────────────────────────────────── */
+        .btn-remove-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            padding: 7px 12px;
+            border: 1px solid #fce8e6;
+            border-radius: 8px;
+            background: #fff;
+            color: #c5221f;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background .15s;
+        }
+
+        .btn-remove-item:hover {
+            background: #fce8e6;
+        }
+
+        .btn-add-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            font-size: 13px;
+            padding: 9px;
+            border: 1px dashed #dadce0;
+            border-radius: 8px;
+            background: none;
+            color: #5f6368;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all .15s;
+            margin-top: 4px;
+        }
+
+        .btn-add-item:hover {
+            border-color: #1967d2;
+            color: #1967d2;
+            background: #e8f0fe;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.25rem;
+            border-top: 1px solid #e9ecef;
+            margin-top: 1.25rem;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            padding: 9px 18px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            background: #fff;
+            color: #5f6368;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background .15s;
+        }
+
+        .btn-back:hover {
+            background: #f8f9fa;
+            color: #202124;
+        }
+
+        .btn-submit {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            padding: 9px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #1967d2;
+            color: #fff;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            transition: background .15s;
+        }
+
+        .btn-submit:hover {
+            background: #1557b0;
+        }
+
+        /* ── Sidebar ─────────────────────────────────────────── */
+        .info-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .info-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 13px;
+            color: #5f6368;
+        }
+
+        .info-list li i {
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .info-icon-info {
+            color: #1967d2;
+        }
+
+        .info-icon-danger {
+            color: #c5221f;
+        }
+
+        .info-icon-success {
+            color: #137333;
+        }
+
+        .info-icon-warning {
+            color: #e65100;
+        }
+
+        .sidebar-divider {
+            border: none;
+            border-top: 1px solid #e9ecef;
+            margin: 1rem 0;
+        }
+
+        .summary-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #9aa0a6;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            margin-bottom: 10px;
+        }
+
+        .summary-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 1rem 0;
+            color: #9aa0a6;
+            font-size: 13px;
+        }
+
+        .summary-empty i {
+            font-size: 24px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding: 5px 0;
+            border-bottom: 1px solid #f1f3f4;
+            color: #5f6368;
+        }
+
+        .summary-row:last-of-type {
+            border-bottom: none;
+        }
+
+        .summary-row strong {
+            color: #202124;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 600;
+            padding-top: 8px;
+            margin-top: 6px;
+            border-top: 1px solid #dadce0;
+            color: #202124;
+        }
+    </style>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            let itemCount = 1;
-            const maxItems = 5;
 
-            // Data stok barang dari PHP
+            // ── Stock data dari PHP ────────────────────────────────────
             const stockData = {};
             @foreach ($items as $item)
                 stockData[{{ $item->id }}] = {{ $item->available_units_count }};
             @endforeach
 
-            // Function untuk mendapatkan semua ID barang yang sudah dipilih (except excludeIndex)
-            function getSelectedItemIds(excludeIndex = null) {
-                const selectedIds = [];
-                document.querySelectorAll('.item-select').forEach((select, idx) => {
-                    if (select.value && idx != excludeIndex) {
-                        selectedIds.push(select.value);
+            let itemCount = 1;
+            const maxItems = 5;
+
+            // ── File upload handler ────────────────────────────────────
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            const suratInput = document.getElementById('suratInput');
+            const fileSelected = document.getElementById('fileSelected');
+            const fileName = document.getElementById('fileName');
+            const removeFile = document.getElementById('removeFile');
+
+            if (fileUploadArea) {
+                fileUploadArea.addEventListener('click', () => suratInput.click());
+
+                suratInput.addEventListener('change', function() {
+                    if (this.files.length) {
+                        fileName.textContent = this.files[0].name;
+                        fileUploadArea.style.display = 'none';
+                        fileSelected.style.display = 'flex';
                     }
                 });
-                return selectedIds;
+
+                removeFile.addEventListener('click', function() {
+                    suratInput.value = '';
+                    fileUploadArea.style.display = 'flex';
+                    fileSelected.style.display = 'none';
+                });
             }
 
-            // Function untuk update semua dropdown options (disable barang yang sudah dipilih)
-            function updateAllDropdowns(changedSelectIndex = null) {
-                const selectedIds = getSelectedItemIds(changedSelectIndex);
+            // ── Helpers ────────────────────────────────────────────────
+            function getSelectedIds(excludeEl = null) {
+                return Array.from(document.querySelectorAll('.item-select'))
+                    .filter(s => s !== excludeEl && s.value)
+                    .map(s => s.value);
+            }
 
-                document.querySelectorAll('.item-select').forEach((select, idx) => {
-                    const currentValue = select.value;
+            function updateAllDropdowns(changedSelect = null) {
+                const selected = getSelectedIds(changedSelect);
 
-                    Array.from(select.options).forEach(option => {
-                        if (option.value === '') {
-                            option.disabled = false;
+                document.querySelectorAll('.item-select').forEach(sel => {
+                    Array.from(sel.options).forEach(opt => {
+                        if (!opt.value) {
+                            opt.disabled = false;
                             return;
                         }
 
-                        // Jika barang sudah dipilih di row lain (bukan row ini), disable option
-                        if (selectedIds.includes(option.value) && option.value !== currentValue) {
-                            option.disabled = true;
-                        }
-                        // Jika stok habis, disable option
-                        else if (stockData[option.value] === 0) {
-                            option.disabled = true;
-                        } else {
-                            option.disabled = false;
-                        }
+                        const outOfStock = (stockData[opt.value] ?? 0) === 0;
+                        const takenElsewhere = selected.includes(opt.value) && opt.value !== sel
+                            .value;
+                        opt.disabled = outOfStock || takenElsewhere;
                     });
 
-                    // Jika value saat ini menjadi disabled, reset select
-                    const selectedOption = select.options[select.selectedIndex];
-                    if (selectedOption && selectedOption.disabled) {
-                        select.value = '';
-                        updateStockInfo(select, idx);
+                    // Reset jika nilai saat ini menjadi disabled
+                    if (sel.options[sel.selectedIndex]?.disabled) {
+                        sel.value = '';
+                        updateStockInfo(sel.closest('.item-card'));
                     }
                 });
             }
 
-            // Function untuk update info stok
-            function updateStockInfo(select, index) {
-                const itemId = select.value;
-                const maxStock = stockData[itemId] || 0;
-                const quantityInput = document.querySelector(`input[name="items[${index}][quantity]"]`);
+            function updateStockInfo(row) {
+                if (!row) return;
+                const sel = row.querySelector('.item-select');
+                const qty = row.querySelector('.quantity-input');
+                const info = row.querySelector('.stock-info');
+                const idx = sel?.getAttribute('data-index');
 
-                if (quantityInput) {
-                    quantityInput.max = maxStock;
+                if (!sel?.value) {
+                    if (info) info.innerHTML = '';
+                    return;
+                }
 
-                    if (parseInt(quantityInput.value) > maxStock) {
-                        quantityInput.value = maxStock;
-                    }
-                    if (maxStock === 0) {
-                        quantityInput.value = 0;
-                        quantityInput.disabled = true;
-                    } else {
-                        quantityInput.disabled = false;
-                    }
-
-                    const infoDiv = document.getElementById(`info-stok-${index}`);
-                    if (infoDiv) {
-                        if (maxStock === 0) {
-                            infoDiv.innerHTML =
-                                '<span class="text-danger">Stok habis! Tidak dapat dipinjam.</span>';
-                        } else {
-                            infoDiv.innerHTML = `Stok tersedia: ${maxStock} unit.`;
-                        }
-                    }
+                const stock = stockData[sel.value] ?? 0;
+                if (qty) {
+                    qty.max = Math.min(stock, 10);
+                    if (+qty.value > stock) qty.value = stock;
+                    qty.disabled = stock === 0;
+                    if (stock === 0) qty.value = 0;
+                }
+                if (info) {
+                    info.innerHTML = stock === 0 ?
+                        `<i class="mdi mdi-alert-circle empty"></i><span class="empty">Stok habis, tidak dapat dipinjam</span>` :
+                        `<i class="mdi mdi-check-circle ok"></i><span class="ok">${stock} unit tersedia</span>`;
                 }
             }
 
-            // Function untuk update ringkasan
             function updateSummary() {
-                const summaryDiv = document.getElementById('summary-content');
-                let summaryHtml = '';
-                let totalItems = 0;
-                let totalQuantity = 0;
+                const content = document.getElementById('summary-content');
+                const rows = document.querySelectorAll('.item-card');
+                const items = [];
+                let totalQty = 0;
 
-                document.querySelectorAll('.item-row').forEach((row, idx) => {
-                    const select = row.querySelector('.item-select');
-                    const quantityInput = row.querySelector('.quantity-input');
-                    const selectedOption = select.options[select.selectedIndex];
-
-                    if (select.value && quantityInput && parseInt(quantityInput.value) > 0) {
-                        const itemName = selectedOption ? selectedOption.text.split(' - ')[0] : 'Item';
-                        const quantity = parseInt(quantityInput.value);
-                        totalItems++;
-                        totalQuantity += quantity;
-                        summaryHtml +=
-                            `<div class="mb-1"><small>• ${itemName}: <strong>${quantity}</strong> unit</small></div>`;
+                rows.forEach(row => {
+                    const sel = row.querySelector('.item-select');
+                    const qty = row.querySelector('.quantity-input');
+                    const opt = sel?.options[sel.selectedIndex];
+                    if (sel?.value && qty && +qty.value > 0) {
+                        const name = opt?.text?.split(' —')[0]?.split(' (')[0] ?? 'Barang';
+                        items.push({
+                            name,
+                            qty: +qty.value
+                        });
+                        totalQty += +qty.value;
                     }
                 });
 
-                if (totalItems > 0) {
-                    summaryHtml = `<div class="alert alert-info py-2 mb-2">
-                <strong>${totalItems}</strong> jenis barang<br>
-                <strong>${totalQuantity}</strong> total unit
-            </div>` + summaryHtml;
-                } else {
-                    summaryHtml = '<p class="text-muted">Belum ada barang dipilih</p>';
+                if (!items.length) {
+                    content.innerHTML =
+                        `<div class="summary-empty"><i class="mdi mdi-cart-off"></i><span>Belum ada barang dipilih</span></div>`;
+                    return;
                 }
 
-                summaryDiv.innerHTML = summaryHtml;
+                const rows_html = items.map(it =>
+                    `<div class="summary-row"><span>${it.name}</span><strong>${it.qty} unit</strong></div>`
+                ).join('');
+
+                content.innerHTML = rows_html +
+                    `<div class="summary-total"><span>${items.length} jenis barang</span><span>${totalQty} total unit</span></div>`;
             }
 
-            // Function untuk update nomor index semua row
-            function updateRowIndices() {
-                const rows = document.querySelectorAll('.item-row');
-                itemCount = rows.length;
+            function bindRowEvents(row, idx) {
+                const sel = row.querySelector('.item-select');
+                const qty = row.querySelector('.quantity-input');
+                const rm = row.querySelector('.btn-remove-item');
+                const label = row.querySelector('.item-label');
 
-                rows.forEach((row, idx) => {
-                    const select = row.querySelector('.item-select');
-                    const quantityInput = row.querySelector('.quantity-input');
-                    const removeBtn = row.querySelector('.remove-item');
+                if (label) label.textContent = `Barang #${idx + 1}`;
+                if (sel) {
+                    sel.name = `items[${idx}][item_id]`;
+                    sel.setAttribute('data-index', idx);
+                    sel.onchange = function() {
+                        updateStockInfo(row);
+                        updateAllDropdowns(this);
+                        updateSummary();
+                    };
+                }
+                if (qty) {
+                    qty.name = `items[${idx}][quantity]`;
+                    qty.setAttribute('data-index', idx);
+                    qty.oninput = () => updateSummary();
+                }
+                if (rm) rm.style.display = idx === 0 ? 'none' : 'inline-flex';
 
-                    if (select) {
-                        select.name = `items[${idx}][item_id]`;
-                        select.setAttribute('data-index', idx);
-                    }
-                    if (quantityInput) {
-                        quantityInput.name = `items[${idx}][quantity]`;
-                        quantityInput.setAttribute('data-index', idx);
-                    }
-                    if (removeBtn) {
-                        if (idx === 0) {
-                            removeBtn.style.display = 'none';
-                        } else {
-                            removeBtn.style.display = 'inline-block';
-                        }
-                    }
+                const infoDiv = row.querySelector('.stock-info');
+                if (infoDiv) infoDiv.id = `info-stok-${idx}`;
+            }
 
-                    const infoDiv = document.getElementById(`info-stok-${idx}`);
-                    if (infoDiv) {
-                        infoDiv.id = `info-stok-${idx}`;
-                    }
-
-                    if (select) {
-                        select.onchange = function() {
-                            const currentIdx = parseInt(this.getAttribute('data-index'));
-                            updateStockInfo(this, currentIdx);
-                            updateAllDropdowns(currentIdx);
-                            updateSummary();
-                        };
-                        if (select.value) {
-                            updateStockInfo(select, idx);
-                        }
-                    }
-                    if (quantityInput) {
-                        quantityInput.onchange = function() {
-                            const selectRow = row.querySelector('.item-select');
-                            const currentIdx = parseInt(selectRow.getAttribute('data-index'));
-                            updateStockInfo(selectRow, currentIdx);
-                            updateSummary();
-                        };
-                        quantityInput.onkeyup = function() {
-                            updateSummary();
-                        };
-                    }
-                });
-
+            function reindex() {
+                document.querySelectorAll('.item-card').forEach((row, i) => bindRowEvents(row, i));
+                itemCount = document.querySelectorAll('.item-card').length;
                 updateAllDropdowns();
             }
 
-            // Tambah item baru
-            const addBtn = document.getElementById('addItemBtn');
-            if (addBtn) {
-                addBtn.addEventListener('click', function() {
-                    if (itemCount >= maxItems) {
-                        alert('Maksimal 5 jenis barang!');
-                        return;
-                    }
+            // ── Tambah item ────────────────────────────────────────────
+            document.getElementById('addItemBtn')?.addEventListener('click', function() {
+                if (itemCount >= maxItems) {
+                    alert('Maksimal 5 jenis barang!');
+                    return;
+                }
 
-                    const container = document.getElementById('items-container');
-                    const newRow = document.createElement('div');
-                    newRow.className = 'item-row card mb-3';
+                // Build options dari item pertama
+                const firstSelect = document.querySelector('.item-select');
+                const optionsHtml = Array.from(firstSelect.options).map(o => o.outerHTML).join('');
 
-                    // Build options HTML
-                    let optionsHtml = '<option value="">-- Pilih Barang --</option>';
-                    @foreach ($items as $item)
-                        optionsHtml += `<option value="{{ $item->id }}" 
-                                    data-stok="{{ $item->available_units_count }}" 
-                                    data-nama="{{ $item->name }}"
-                                    {{ $item->available_units_count == 0 ? 'disabled' : '' }}>
-                {{ $item->name }} 
-                @if ($item->brand || $item->model)
-                    ({{ $item->brand }} {{ $item->model }})
-                @endif
-                - Stok: {{ $item->available_units_count }} unit
-                @if ($item->available_units_count == 0)
-                    (Habis)
-                @endif
-            </option>`;
-                    @endforeach
-
-                    newRow.innerHTML = `
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label class="form-label">Pilih Barang</label>
-                            <select name="items[${itemCount}][item_id]" 
-                                    class="form-control item-select" 
-                                    data-index="${itemCount}"
-                                    required>
-                                ${optionsHtml}
-                            </select>
+                const div = document.createElement('div');
+                div.className = 'item-card';
+                div.innerHTML = `
+                    <div class="item-card-header">
+                        <span class="item-label">Barang #${itemCount + 1}</span>
+                    </div>
+                    <div class="form-row-3">
+                        <div class="field mb-0">
+                            <label class="field-label">Pilih Barang</label>
+                            <select class="form-control item-select" required>${optionsHtml}</select>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Jumlah</label>
-                            <input type="number" 
-                                   name="items[${itemCount}][quantity]" 
-                                   class="form-control quantity-input" 
-                                   data-index="${itemCount}"
-                                   value="1"
-                                   min="1"
-                                   required>
+                        <div class="field mb-0">
+                            <label class="field-label">Jumlah</label>
+                            <input type="number" class="form-control quantity-input" value="1" min="1" max="10" required>
                         </div>
-                        <div class="col-md-3 d-flex align-items-end">
-                            <button type="button" class="btn btn-danger remove-item">
-                                <i class="mdi mdi-delete"></i> Hapus
+                        <div class="field mb-0 field-action">
+                            <label class="field-label invisible">x</label>
+                            <button type="button" class="btn-remove-item">
+                                <i class="mdi mdi-trash-can-outline"></i> Hapus
                             </button>
                         </div>
                     </div>
-                    <div class="row mt-2">
-                        <div class="col-12">
-                            <small class="text-muted info-stok" id="info-stok-${itemCount}"></small>
-                        </div>
-                    </div>
-                </div>
-            `;
+                    <div class="stock-info"></div>`;
 
-                    container.appendChild(newRow);
-                    updateRowIndices();
-                    updateSummary();
-                });
-            }
+                div.querySelector('.item-select').value = '';
+                document.getElementById('items-container').appendChild(div);
+                reindex();
+                updateSummary();
+            });
 
-            // Hapus item
+            // ── Hapus item ─────────────────────────────────────────────
             document.getElementById('items-container').addEventListener('click', function(e) {
-                const removeBtn = e.target.closest('.remove-item');
-                if (removeBtn) {
-                    const row = removeBtn.closest('.item-row');
-                    if (row && document.querySelectorAll('.item-row').length > 1) {
-                        row.remove();
-                        updateRowIndices();
-                        updateSummary();
-                    }
-                }
-            });
-
-            // Event listener untuk perubahan
-            document.getElementById('items-container').addEventListener('change', function(e) {
-                if (e.target.classList.contains('item-select') || e.target.classList.contains(
-                        'quantity-input')) {
+                const btn = e.target.closest('.btn-remove-item');
+                if (btn && document.querySelectorAll('.item-card').length > 1) {
+                    btn.closest('.item-card').remove();
+                    reindex();
                     updateSummary();
                 }
             });
 
-            // Initial update
-            updateRowIndices();
-            updateAllDropdowns();
-            updateSummary();
+            // ── Validasi submit ────────────────────────────────────────
+            document.getElementById('loanForm')?.addEventListener('submit', function(e) {
+                const selects = document.querySelectorAll('.item-select');
+                const selectedIds = [];
+                let hasSelected = false;
 
-            // Validasi sebelum submit
-            const loanForm = document.getElementById('loanForm');
-            if (loanForm) {
-                loanForm.addEventListener('submit', function(e) {
-                    const selectedItems = document.querySelectorAll('.item-select');
-                    let hasSelected = false;
-                    const selectedIds = [];
+                for (const sel of selects) {
+                    if (!sel.value) continue;
 
-                    for (let select of selectedItems) {
-                        if (select.value) {
-                            // Cek duplikasi barang
-                            if (selectedIds.includes(select.value)) {
-                                e.preventDefault();
-                                alert('Anda tidak dapat memilih barang yang sama lebih dari satu kali!');
-                                return false;
-                            }
-                            selectedIds.push(select.value);
-
-                            const idx = select.getAttribute('data-index');
-                            const quantityInput = document.querySelector(
-                                `input[name="items[${idx}][quantity]"]`);
-                            const maxStock = stockData[select.value];
-
-                            if (quantityInput && parseInt(quantityInput.value) > maxStock) {
-                                e.preventDefault();
-                                alert(`Jumlah yang diminta melebihi stok tersedia untuk item tersebut!`);
-                                return false;
-                            }
-                            hasSelected = true;
-                        }
-                    }
-
-                    if (!hasSelected) {
+                    if (selectedIds.includes(sel.value)) {
                         e.preventDefault();
-                        alert('Silakan pilih minimal 1 barang!');
-                        return false;
+                        alert('Tidak dapat memilih barang yang sama lebih dari satu kali!');
+                        return;
                     }
-                });
-            }
+
+                    selectedIds.push(sel.value);
+                    const idx = sel.getAttribute('data-index');
+                    const qty = document.querySelector(`input[name="items[${idx}][quantity]"]`);
+                    const maxStock = stockData[sel.value];
+
+                    if (qty && +qty.value > maxStock) {
+                        e.preventDefault();
+                        alert('Jumlah yang diminta melebihi stok tersedia!');
+                        return;
+                    }
+
+                    hasSelected = true;
+                }
+
+                if (!hasSelected) {
+                    e.preventDefault();
+                    alert('Silakan pilih minimal 1 barang!');
+                }
+            });
+
+            // ── Init ───────────────────────────────────────────────────
+            reindex();
+            updateSummary();
         });
     </script>
 @endsection

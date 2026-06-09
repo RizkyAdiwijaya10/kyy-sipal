@@ -61,16 +61,8 @@ class AdminLoanController extends Controller
             'return_pending' => Loan::where('return_request_status', 'pending')->count(),
         ];
 
-        return view('admin.peminjaman.index', compact('loans', 'stats'));
+        return view('admin.pengajuan.peminjaman', compact('loans', 'stats'));
     }
-
-    public function show(Loan $loan)
-    {
-        $loan->load(['user', 'details.itemUnit.item', 'approver']);
-
-        return view('admin.peminjaman.show', compact('loan'));
-    }
-
 
     public function getDetailJson(Loan $loan)
     {
@@ -88,7 +80,7 @@ class AdminLoanController extends Controller
                 'actual_return_date' => $loan->actual_return_date ? $loan->actual_return_date->format('d F Y') : null,
                 'purpose' => $loan->purpose,
                 'status' => $loan->status,
-                'status_badge' => $this->getStatusBadge($loan->status),
+                'status_badge' => ($loan->status),
                 'approved_at' => $loan->approved_at ? $loan->approved_at->format('d F Y H:i') : null,
                 'approver_name' => $loan->approver ? $loan->approver->name : null,
                 'notes' => $loan->notes,
@@ -104,47 +96,13 @@ class AdminLoanController extends Controller
                         'inventory_code' => $detail->itemUnit->inventory_code ?? '-',
                         'item_name' => $detail->itemUnit->item->name,
                         'condition_before' => $detail->condition_before,
-                        'condition_before_badge' => $this->getConditionBadge($detail->condition_before),
+                        'condition_before_badge' => ($detail->condition_before),
                         'condition_after' => $detail->condition_after,
                         'condition_after_badge' => $detail->condition_after ? $this->getConditionBadge($detail->condition_after) : '<span class="badge bg-secondary">Belum dicek</span>',
                     ];
                 })
             ]
         ]);
-    }
-
-
-    private function getStatusBadge($status)
-    {
-        switch ($status) {
-            case 'pending':
-                return '<span class="badge bg-warning text-dark">Pending</span>';
-            case 'approved':
-                return '<span class="badge bg-primary">Disetujui</span>';
-            case 'borrowed':
-                return '<span class="badge bg-info text-dark">Dipinjam</span>';
-            case 'returned':
-                return '<span class="badge bg-success">Dikembalikan</span>';
-            case 'rejected':
-                return '<span class="badge bg-danger">Ditolak</span>';
-            default:
-                return '<span class="badge bg-secondary">' . $status . '</span>';
-        }
-    }
-
-
-    private function getConditionBadge($condition)
-    {
-        switch ($condition) {
-            case 'baik':
-                return '<span class="badge bg-success">Baik</span>';
-            case 'rusak':
-                return '<span class="badge bg-danger">Rusak</span>';
-            case 'maintenance':
-                return '<span class="badge bg-warning">Maintenance</span>';
-            default:
-                return '<span class="badge bg-secondary">' . $condition . '</span>';
-        }
     }
 
     public function downloadSurat(Loan $loan)
@@ -157,7 +115,6 @@ class AdminLoanController extends Controller
 
         return redirect()->back()->with('error', 'File surat tidak ditemukan');
     }
-
 
     public function viewSurat(Loan $loan)
     {
@@ -172,7 +129,6 @@ class AdminLoanController extends Controller
 
         return redirect()->back()->with('error', 'File surat tidak ditemukan');
     }
-
 
     public function approve(Loan $loan)
     {
@@ -192,7 +148,6 @@ class AdminLoanController extends Controller
             ->with('success', 'Peminjaman berhasil disetujui');
     }
 
-
     public function reject(Request $request, Loan $loan)
     {
         $request->validate([
@@ -200,12 +155,6 @@ class AdminLoanController extends Controller
         ], [
             'reject_reason.required' => 'Alasan penolakan wajib diisi',
         ]);
-
-        if ($request->fails()) {
-            return redirect()->back()
-                ->withErrors($request)
-                ->withInput();
-        }
 
         if ($loan->status !== 'pending') {
             return back()->with('error', 'Peminjaman sudah diproses');
@@ -230,7 +179,6 @@ class AdminLoanController extends Controller
             ->with('success', 'Peminjaman berhasil ditolak');
     }
 
-
     public function confirmBorrowed(Loan $loan)
     {
         if ($loan->status !== 'approved') {
@@ -253,47 +201,6 @@ class AdminLoanController extends Controller
 
         return redirect()->route('admin.loans.index')
             ->with('success', 'Barang berhasil dikonfirmasi dipinjam');
-    }
-
-
-    public function returnItems(Request $request, Loan $loan)
-    {
-        if ($loan->status !== 'borrowed') {
-            return back()->with('error', 'Barang belum dipinjam');
-        }
-
-        $request->validate([
-            'condition_after' => 'required|in:baik,rusak,maintenance',
-            'return_notes' => 'nullable|string|max:500',
-        ]);
-
-        if ($request->fails()) {
-            return redirect()->back()
-                ->withErrors($request)
-                ->withInput();
-        }
-
-        DB::transaction(function () use ($loan, $request) {
-            foreach ($loan->details as $detail) {
-                $detail->update([
-                    'condition_after' => $request->condition_after,
-                ]);
-
-                $detail->itemUnit->update([
-                    'status'    => 'tersedia',
-                    'condition' => $request->condition_after,
-                ]);
-            }
-
-            $loan->update([
-                'status'             => 'returned',
-                'actual_return_date' => now(),
-                'notes'              => $request->return_notes ?: $loan->notes,
-            ]);
-        });
-
-        return redirect()->route('admin.loans.index')
-            ->with('success', 'Barang berhasil dikembalikan');
     }
 
     public function returnRequests(Request $request)
@@ -334,20 +241,11 @@ class AdminLoanController extends Controller
             'total'    => Loan::whereNotNull('return_requested_at')->count(),
         ];
 
-        return view('admin.peminjaman.return-requests', compact('loans', 'stats'));
-    }
-
-    public function showReturnRequest(Loan $loan)
-    {
-        $loan->load(['user', 'details.itemUnit.item', 'approver']);
-
-        return view('admin.peminjaman.return-request-detail', compact('loan'));
+        return view('admin.pengajuan.pengembalian', compact('loans', 'stats'));
     }
 
     public function approveReturnRequest(Request $request, Loan $loan)
     {
-        // Debug untuk melihat apakah method dipanggil
-        // dd('Method approveReturnRequest dipanggil', $loan->id);
 
         if ($loan->return_request_status !== 'pending') {
             return redirect()->route('admin.loans.return-requests')
@@ -355,30 +253,23 @@ class AdminLoanController extends Controller
         }
 
         $request->validate([
-            'condition_after' => 'required|in:baik,rusak,maintenance,hilang',
+            'condition_after' => 'required|array',
+            'condition_after.*' => 'required|in:baik,rusak,maintenance,hilang',
             'return_notes' => 'nullable|string|max:500',
         ]);
-
-        if ($request->fails()) {
-            return redirect()->back()
-                ->withErrors($request)
-                ->withInput();
-        }
 
         DB::transaction(function () use ($loan, $request) {
             // Update kondisi di loan_details
             foreach ($loan->details as $detail) {
-                $detail->update([
-                    'condition_after' => $request->condition_after,
-                ]);
+                $conditionAfter = $request->condition_after[$detail->id] ?? 'baik';
 
-                // Update status unit
-                $status = ($request->condition_after == 'rusak' || $request->condition_after == 'hilang')
-                    ? 'nonaktif' : 'tersedia';
+                $detail->update(['condition_after' => $conditionAfter]);
+
+                $status = in_array($conditionAfter, ['rusak', 'hilang']) ? 'nonaktif' : 'tersedia';
 
                 $detail->itemUnit->update([
-                    'status' => $status,
-                    'condition' => $request->condition_after,
+                    'status'    => $status,
+                    'condition' => $conditionAfter,
                 ]);
             }
 
@@ -409,12 +300,6 @@ class AdminLoanController extends Controller
         ], [
             'reject_reason.required' => 'Alasan penolakan wajib diisi',
         ]);
-
-        if ($request->fails()) {
-            return redirect()->back()
-                ->withErrors($request)
-                ->withInput();
-        }
 
         DB::transaction(function () use ($loan, $request) {
             $loan->update([

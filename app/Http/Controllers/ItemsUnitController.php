@@ -36,20 +36,7 @@ class ItemsUnitController extends Controller
 
         return view('admin.inventaris.unit.index', compact('itemUnits', 'items', 'statuses', 'conditions'));
     }
-    // {
-    //     $itemUnits = ItemUnit::paginate(10);
 
-    //     return view('inventaris.unit.index', [
-    //         'itemUnits' => $itemUnits,
-    //         'items' => [],
-    //         'statuses' => [],
-    //         'conditions' => [],
-    //     ]);
-    // }
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(Request $request)
     {
         $items = Item::orderBy('name')->get();
@@ -112,13 +99,6 @@ class ItemsUnitController extends Controller
 
         return redirect()->route('item-units.index')
             ->with('success', 'Unit barang berhasil ditambahkan');
-    }
-
-    public function show(ItemUnit $itemUnit)
-    {
-        $itemUnit->load('item.category', 'item.fundingSource');
-
-        return view('admin.inventaris.unit.show', compact('itemUnit'));
     }
 
     public function edit(ItemUnit $itemUnit)

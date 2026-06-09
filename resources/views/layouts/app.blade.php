@@ -33,11 +33,11 @@
                 <div>
                     <a class="navbar-brand brand-logo" href="{{ route('dashboard') }}"
                         style=
-            "font-size:22px;
-            font-weight:700;
-              color:#1F3BB3;
-              letter-spacing:1px;
-              text-decoration:none;">
+                        "font-size:22px;
+                        font-weight:700;
+                        color:#1F3BB3;
+                        letter-spacing:1px;
+                        text-decoration:none;">
                         SIPALLL
                     </a>
 
@@ -84,7 +84,7 @@
                     </li>
                 </ul>
                 <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
-                    data-bs-toggle="offcanvas">
+                    data-toggle-sidebar="true">
                     <span class="mdi mdi-menu"></span>
                 </button>
             </div>
@@ -201,21 +201,21 @@
                             </a>
                         </li>
                         {{-- <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('user.returns.*') ? 'active' : '' }}"
-                  href="{{ route('user.returns.index') }}">
-                    <i class="mdi mdi-backup-restore menu-icon"></i>
-                    <span class="menu-title">Pengembalian</span>
-                    @php
-                        $pendingReturnCount = \App\Models\Loan::where('user_id', Auth::id())
-                            ->where('return_request_status', 'pending')
-                            ->whereNotNull('return_requested_at')
-                            ->count();
-                    @endphp
-                    @if ($pendingReturnCount > 0)
-                    <span class="badge bg-warning ms-auto">{{ $pendingReturnCount }}</span>
-                    @endif
-                </a>
-            </li> --}}
+                            <a class="nav-link {{ request()->routeIs('user.returns.*') ? 'active' : '' }}"
+                            href="{{ route('user.returns.index') }}">
+                                <i class="mdi mdi-backup-restore menu-icon"></i>
+                                <span class="menu-title">Pengembalian</span>
+                                @php
+                                    $pendingReturnCount = \App\Models\Loan::where('user_id', Auth::id())
+                                        ->where('return_request_status', 'pending')
+                                        ->whereNotNull('return_requested_at')
+                                        ->count();
+                                @endphp
+                                @if ($pendingReturnCount > 0)
+                                <span class="badge bg-warning ms-auto">{{ $pendingReturnCount }}</span>
+                                @endif
+                            </a>
+                        </li> --}}
 
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('user.loans.history') ? 'active' : '' }}"
@@ -228,7 +228,7 @@
                                         ->count();
                                 @endphp
                                 @if ($userLoansCount > 0)
-                                    <span class="badge bg-primary ms-auto">{{ $userLoansCount }}</span>
+                                    <span class="badge bg-danger ms-auto">{{ $userLoansCount }}</span>
                                 @endif
                             </a>
                         </li>

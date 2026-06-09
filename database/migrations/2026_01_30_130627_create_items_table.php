@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
-            $table->string('name'); // Nama barang
-            $table->string('brand')->nullable(); // Merek
-            $table->string('model')->nullable(); // Tipe/Model
-            $table->text('specification')->nullable(); // Spesifikasi
-            // $table->integer('total_stock'); // Jumlah unit
+            $table->string('name');
+            $table->string('brand')->nullable(); 
+            $table->string('model')->nullable(); 
+            $table->text('specification')->nullable(); 
+            // $table->integer('total_stock'); 
             $table->timestamps();
         });
         

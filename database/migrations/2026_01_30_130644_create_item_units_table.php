@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('item_units', function (Blueprint $table) {
             $table->id();
             $table->foreignId('item_id')->constrained()->cascadeOnDelete();
-            $table->string('serial_number')->nullable(); // Nomor seri
-            $table->string('inventory_code')->nullable(); // Kode inventaris
+            $table->string('serial_number')->nullable();
+            $table->string('inventory_code')->nullable(); 
             $table->enum('condition', ['baik','rusak','maintenance','hilang'])->default('baik');
             $table->enum('status', ['tersedia','dipinjam','dipesan','nonaktif'])->default('tersedia');
             $table->timestamps();

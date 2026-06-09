@@ -5,7 +5,7 @@
 @section('page-subtitle', 'Kelola pengajuan pengembalian barang dari user')
 
 @section('content')
-    <div class="container">
+    <div class="row">
 
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -168,7 +168,6 @@
                                 <th>Tgl Pinjam</th>
                                 <th>Rencana Kembali</th>
                                 <th>Barang</th>
-                                <th>Tgl Pengajuan</th>
                                 <th>Kondisi Akhir</th>
                                 <th>Status</th>
                                 <th width="25%">Aksi</th>
@@ -186,7 +185,6 @@
                                             {{ $loan->details->count() }} barang
                                         </span>
                                     </td>
-                                    <td>{{ \Carbon\Carbon::parse($loan->return_requested_at)->format('d/m/Y H:i') }}</td>
 
                                     {{-- KOLOM KONDISI AKHIR --}}
                                     <td>
@@ -266,7 +264,7 @@
 
                                                     <div class="mb-3">
                                                         <label class="form-label">Kondisi Barang <span
-                                                                class="text-danger">*</span></label>
+                                                                class="text-danger"></span></label>
                                                         <select name="condition_after" class="form-control" required>
                                                             <option value="baik">Baik</option>
                                                             <option value="maintenance">Maintenance</option>
@@ -309,7 +307,7 @@
                                                     </div>
                                                     <div class="mb-3">
                                                         <label class="form-label">Alasan Penolakan <span
-                                                                class="text-danger">*</span></label>
+                                                                class="text-danger"></span></label>
                                                         <textarea name="reject_reason" class="form-control" rows="3" placeholder="Masukkan alasan penolakan..."
                                                             required></textarea>
                                                     </div>

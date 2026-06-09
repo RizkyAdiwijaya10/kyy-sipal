@@ -5,7 +5,7 @@
 @section('page-subtitle', 'Filter dan export data peminjaman')
 
 @section('content')
-    <div class="container">
+    <div class="row">
 
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -23,12 +23,12 @@
 
         {{-- FILTER FORM --}}
         <div class="card shadow-sm border-0 mb-4 no-print">
-            <div class="card-header bg-white">
+            {{-- <div class="card-header bg-white">
                 <h5 class="mb-0">
                     <i class="mdi mdi-filter-outline me-2"></i>
                     Filter Laporan
                 </h5>
-            </div>
+            </div> --}}
             <div class="card-body">
                 <form method="GET" action="{{ route('admin.reports.loans') }}" class="row g-3">
 

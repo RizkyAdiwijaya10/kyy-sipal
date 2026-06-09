@@ -67,13 +67,6 @@ class UserController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
-        if ($request->fails()) {
-            return redirect()->route('admin.users.index')
-                ->withErrors($request)
-                ->withInput()
-                ->with('error', 'Gagal mengupdate user. Periksa kembali data Anda.');
-        }
-
         $data = [
             'name' => $request->name,
             'email' => $request->email,

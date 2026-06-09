@@ -171,17 +171,6 @@ class LoansController extends Controller
         return view('user.peminjaman.history', compact('loans'));
     }
 
-    public function showLoan(Loan $loan)
-    {
-        if ($loan->user_id !== auth()->id()) {
-            abort(403);
-        }
-
-        $loan->load('details.itemUnit.item');
-
-        return view('user.peminjaman.show', compact('loan'));
-    }
-
     public function cancelLoan(Loan $loan)
     {
         if ($loan->user_id !== auth()->id()) {
@@ -204,44 +193,7 @@ class LoansController extends Controller
             ->route('user.loans.history')
             ->with('success', 'Peminjaman berhasil dibatalkan');
     }
-
-
-    public function returnIndex()
-    {
-        $loans = Loan::with('details.itemUnit.item')
-            ->where('user_id', auth()->id())
-            ->where('status', 'borrowed')
-            ->where(function ($q) {
-                $q->whereNull('return_requested_at')
-                    ->orWhere('return_request_status', 'rejected');
-            })
-            ->latest()
-            ->paginate(10);
-
-        $pendingReturnRequests = Loan::with('details.itemUnit.item')
-            ->where('user_id', auth()->id())
-            ->whereNotNull('return_requested_at')
-            ->where('return_request_status', 'pending')
-            ->latest()
-            ->paginate(10, ['*'], 'pending_page');
-
-        return view('user.pengembalian.index', compact('loans', 'pendingReturnRequests'));
-    }
-
-    public function returnCreate(Loan $loan)
-    {
-        if ($loan->user_id !== auth()->id()) {
-            abort(403);
-        }
-
-        if (!$this->canRequestReturn($loan)) {
-            return redirect()->route('user.returns.index')
-                ->with('error', 'Tidak dapat mengajukan pengembalian untuk peminjaman ini.');
-        }
-
-        return view('user.pengembalian.create', compact('loan'));
-    }
-
+ 
     public function returnStore(Request $request, Loan $loan)
     {
         if ($loan->user_id !== auth()->id()) {
@@ -273,22 +225,6 @@ class LoansController extends Controller
 
         return redirect()->route('user.loans.history')
             ->with('success', 'Pengajuan pengembalian berhasil dikirim. Silakan tunggu konfirmasi admin.');
-    }
-
-    public function returnShow(Loan $loan)
-    {
-        if ($loan->user_id !== auth()->id()) {
-            abort(403);
-        }
-
-        if (is_null($loan->return_requested_at)) {
-            return redirect()->route('user.returns.index')
-                ->with('error', 'Pengajuan pengembalian tidak ditemukan.');
-        }
-
-        $loan->load('details.itemUnit.item');
-
-        return view('user.pengembalian.show', compact('loan'));
     }
 
     public function returnCancel(Loan $loan)
@@ -404,38 +340,6 @@ class LoansController extends Controller
                 })
             ]
         ]);
-    }
-
-    private function getStatusBadge($status)
-    {
-        switch ($status) {
-            case 'pending':
-                return '<span class="badge bg-warning text-dark">Pending</span>';
-            case 'approved':
-                return '<span class="badge bg-primary">Disetujui</span>';
-            case 'borrowed':
-                return '<span class="badge bg-info text-dark">Dipinjam</span>';
-            case 'returned':
-                return '<span class="badge bg-success">Dikembalikan</span>';
-            case 'rejected':
-                return '<span class="badge bg-danger">Ditolak</span>';
-            default:
-                return '<span class="badge bg-secondary">' . $status . '</span>';
-        }
-    }
-
-    private function getConditionBadge($condition)
-    {
-        switch ($condition) {
-            case 'baik':
-                return '<span class="badge bg-success">Baik</span>';
-            case 'rusak':
-                return '<span class="badge bg-danger">Rusak</span>';
-            case 'maintenance':
-                return '<span class="badge bg-warning">Maintenance</span>';
-            default:
-                return '<span class="badge bg-secondary">' . $condition . '</span>';
-        }
     }
 
     public function downloadTemplate()

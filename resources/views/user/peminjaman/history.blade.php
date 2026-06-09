@@ -226,17 +226,15 @@
                                         <div class="modal-content">
                                             <form method="POST" action="{{ route('user.returns.store', $loan) }}">
                                                 @csrf
-                                                <div class="modal-header bg-warning text-dark">
+                                                <div class="modal-header text-dark">
                                                     <h5 class="modal-title">
-                                                        <i class="mdi mdi-backup-restore me-2"></i>
                                                         Ajukan Pengembalian Barang
                                                     </h5>
                                                     <button type="button" class="btn-close"
                                                         data-bs-dismiss="modal"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <div class="alert alert-info">
-                                                        <i class="mdi mdi-information-outline me-2"></i>
+                                                    <div class="alert">
                                                         <strong>Informasi Peminjaman:</strong><br>
                                                         Kode: {{ $loan->loan_code }}<br>
                                                         Tanggal Pinjam: {{ $loan->loan_date->format('d/m/Y') }}<br>
@@ -252,9 +250,9 @@
 
                                                     <div class="row">
                                                         <div class="col-md-6">
-                                                            <div class="card bg-light">
+                                                            <div class="card">
                                                                 <div class="card-header">
-                                                                    <strong>📦 Daftar Barang Dipinjam</strong>
+                                                                    <strong>Daftar Barang Dipinjam</strong>
                                                                 </div>
                                                                 <div class="card-body p-0">
                                                                     <div class="list-group list-group-flush">
@@ -300,7 +298,7 @@
                                                         data-bs-dismiss="modal">
                                                         <i class="mdi mdi-close"></i> Batal
                                                     </button>
-                                                    <button type="submit" class="btn btn-warning">
+                                                    <button type="submit" class="btn btn-primary">
                                                         <i class="mdi mdi-send"></i> Ajukan Pengembalian
                                                     </button>
                                                 </div>
