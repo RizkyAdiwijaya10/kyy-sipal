@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Riwayat Peminjaman')
+@section('title', 'Pengajuan Saya')
 
 @section('content')
     <div class="card">
         <div class="card-body">
             <div class="card-header py-3 d-flex justify-content-between align-items-center mb-4">
                 <h6 class="card-title m-0 fw-bold text-primary">
-                    <i class="mdi mdi-clipboard-list me-2"></i> Riwayat Peminjaman
+                    <i class="mdi mdi-clipboard-list me-2"></i> Pengajuan Saya
                 </h6>
             </div>
             {{-- FORM FILTER --}}
@@ -571,7 +571,10 @@
     @endpush --}}
 
     @push('scripts')
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
         <script>
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
             function showDetailModal(loanId) {
                 const modal = new bootstrap.Modal(document.getElementById('detailModal'));
                 const modalBody = document.getElementById('detailModalBody');
@@ -614,33 +617,36 @@
                             }
 
                             let suratHtml = '';
-                            if (d.generated_pdf_path) {
+                            if (d.surat_url) {
                                 suratHtml = `
                         <div class="card mb-4">
-                            <div class="card-header">
+                            <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">Surat Peminjaman</h5>
+                                <div>
+                                    <a href="${d.surat_url}" class="btn btn-sm btn-primary me-2" target="_blank">
+                                        <i class="mdi mdi-open-in-new"></i> Buka Baru
+                                    </a>
+                                    <a href="${d.surat_url}" download="Surat_${d.loan_code}.pdf" class="btn btn-sm btn-success">
+                                        <i class="mdi mdi-download"></i> Unduh
+                                    </a>
+                                </div>
                             </div>
                             <div class="card-body">
-                                <div class="row align-items-center">
-                                    <div class="col-md-8">
-                                        <div class="d-flex align-items-center">
-                                            <i class="mdi mdi-file-pdf text-danger" style="font-size: 48px;"></i>
-                                            <div class="ms-3">
-                                                <strong>${d.surat_number || '-'}</strong>
-                                                <br>
-                                                <small class="text-muted">Dibuat: ${d.created_at}</small>
-                                            </div>
-                                        </div>
+                                <div style="height: 400px; overflow: auto; border: 1px solid #dee2e6; border-radius: 4px;">
+                                    <div id="pdf-viewer-${loanId}" style="width: 100%; padding: 20px; text-align: center;">
+                                        
                                     </div>
-                                    <div class="col-md-4 text-end">
-                                        <a href="{{ url('storage') }}/${d.generated_pdf_path}" class="btn btn-primary btn-sm" target="_blank">
-                                            <i class="mdi mdi-eye"></i> Lihat Surat
-                                        </a>
-                                    </div>
+                                </div>
+                                <div class="mt-2 text-center">
+                                    <small class="text-muted">PDF Viewer - Scroll untuk melihat halaman berikutnya</small>
                                 </div>
                             </div>
                         </div>
                     `;
+                                // Load PDF after HTML is rendered
+                                setTimeout(() => {
+                                    loadPdfViewer(`pdf-viewer-${loanId}`, d.surat_url);
+                                }, 100);
                             }
 
                             modalBody.innerHTML = `
@@ -661,7 +667,6 @@
                             <div class="card">
                                 <div class="card-body">
                                     <table class="table table-sm table-borderless">
-                                        <tr><th width="120">Peminjam</th><td>: ${d.user_name}<\/td><\/tr>
                                         <tr><th>Tanggal Pinjam</th><td>: ${d.loan_date}<\/td><\/tr>
                                         <tr><th>Rencana Kembali</th><td>: ${d.return_date}<\/td><\/tr>
                                         <tr><th>Tanggal Kembali</th><td>: ${d.actual_return_date || '-'}<\/td><\/tr>
@@ -715,6 +720,61 @@
                 </div>
             `;
                     });
+            }
+
+            function loadPdfViewer(containerId, pdfUrl) {
+                const container = document.getElementById(containerId);
+                if (!container) {
+                    console.error('Container not found:', containerId);
+                    return;
+                }
+
+                try {
+                    const loadingTask = pdfjsLib.getDocument({
+                        url: pdfUrl,
+                        withCredentials: true
+                    });
+
+                    loadingTask.promise.then(pdf => {
+                        const renderPages = [];
+                        for (let i = 1; i <= Math.min(pdf.numPages, 3); i++) {
+                            renderPages.push(
+                                pdf.getPage(i).then(page => {
+                                    const viewport = page.getViewport({
+                                        scale: 1.5
+                                    });
+                                    const canvas = document.createElement('canvas');
+                                    const context = canvas.getContext('2d');
+                                    canvas.height = viewport.height;
+                                    canvas.width = viewport.width;
+                                    canvas.style.marginBottom = '10px';
+                                    canvas.style.border = '1px solid #ddd';
+                                    canvas.style.maxWidth = '100%';
+                                    canvas.style.height = 'auto';
+                                    canvas.style.display = 'block';
+
+                                    const renderContext = {
+                                        canvasContext: context,
+                                        viewport: viewport
+                                    };
+                                    return page.render(renderContext).promise.then(() => {
+                                        container.appendChild(canvas);
+                                    });
+                                })
+                            );
+                        }
+                        return Promise.all(renderPages);
+                    }).catch(error => {
+                        console.error('Error loading PDF:', error);
+                        container.innerHTML =
+                            '<div class="alert alert-warning m-2"><i class="mdi mdi-alert"></i> Gagal memuat PDF. URL: ' +
+                            pdfUrl + '</div>';
+                    });
+                } catch (error) {
+                    console.error('Error initializing PDF.js:', error);
+                    container.innerHTML = '<div class="alert alert-warning m-2"><i class="mdi mdi-alert"></i> Error: ' + error
+                        .message + '</div>';
+                }
             }
 
             function cancelReturnRequest(loanId) {

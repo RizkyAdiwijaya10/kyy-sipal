@@ -3,12 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\category;
-// use App\Models\itemUnits;
-// use PhpOffice\PhpSpreadsheet\Calculation\Category as CalculationCategory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Item extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'category_id',
         'name',
@@ -20,7 +20,7 @@ class Item extends Model
 
     public function category()
     {
-        return $this->belongsTo(category::class);
+        return $this->belongsTo(Category::class);
     }
 
     public function itemUnits()
@@ -28,13 +28,5 @@ class Item extends Model
         return $this->hasMany(ItemUnit::class, 'item_id');
     }
 
-    public function getAvailableUnitsAttribute()
-    {
-        return $this->itemUnits()->where('status', 'tersedia')->count();
-    }
-
-    public function getBorrowedUnitsAttribute()
-    {
-        return $this->itemUnits()->where('status', 'dipinjam')->count();
-    }
+    
 }

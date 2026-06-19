@@ -74,7 +74,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/loans', [LoansController::class, 'storeLoan'])->name('loans.store');
         Route::get('/loans/history', [LoansController::class, 'loanHistory'])->name('loans.history');
         Route::get('/loans/{loan}', [LoansController::class, 'showLoan'])->name('loans.show');
-        Route::put('/loans/{loan}/cancel', [LoansController::class, 'cancelLoan'])->name('loans.cancel'); 
+        Route::put('/loans/{loan}/cancel', [LoansController::class, 'cancelLoan'])->name('loans.cancel');
+        Route::get('/loans/{loan}/view-surat', [LoansController::class, 'viewSurat'])->name('loans.view-surat');
+        Route::get('/loans/{loan}/download-surat', [LoansController::class, 'downloadSurat'])->name('loans.download-surat');
         // Route::get('/loans/{loan}/print', [LoansController::class, 'printLoan'])->name('loans.print'); 
 
 

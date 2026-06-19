@@ -759,7 +759,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
-            // ── Stock data dari PHP ────────────────────────────────────
+            
             const stockData = {};
             @foreach ($items as $item)
                 stockData[{{ $item->id }}] = {{ $item->available_units_count }};

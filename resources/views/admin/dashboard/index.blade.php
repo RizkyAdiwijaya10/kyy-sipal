@@ -84,7 +84,7 @@
                 <h6 class="m-0 font-weight-bold text-primary">
                     <i class="mdi mdi-clipboard-list me-2"></i> Peminjaman Terbaru
                 </h6>
-                <a href="{{ route('admin.loans.index') }}" class="btn btn-sm btn-primary">
+                <a href="{{ route('admin.loans.index') }}" class="btn btn-sm btn-success">
                     Lihat Semua <i class="mdi mdi-arrow-right"></i>
                 </a>
             </div>
@@ -98,7 +98,6 @@
                                 <th>Tgl Pinjam</th>
                                 <th>Rencana Kembali</th>
                                 <th>Status</th>
-                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -123,11 +122,7 @@
                                         <span class="badge bg-secondary">{{ $loan->status }}</span>
                                     @endif
                                 </td>
-                                <td>
-                                    <a href="{{ route('admin.loans.show', $loan) }}" class="btn btn-sm btn-info">
-                                        <i class="mdi mdi-eye"></i>
-                                    </a>
-                                </td>
+                                
                             </tr>
                             @empty
                             <tr><td colspan="6" class="text-center">Tidak ada data peminjaman terbaru</td>
@@ -140,7 +135,7 @@
     </div>
 </div>
 
-<div class="row">
+{{-- <div class="row">
     <div class="col-xl-6 col-lg-6 mb-4">
         <div class="card shadow">
             <div class="card-header py-3">
@@ -206,7 +201,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 
 @push('styles')

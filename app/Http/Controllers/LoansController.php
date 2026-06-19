@@ -1,5 +1,4 @@
 <?php
-// app/Http/Controllers/LoansController.php
 
 namespace App\Http\Controllers;
 
@@ -18,7 +17,6 @@ class LoansController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('user');
     }
 
     public function availableItems()
@@ -79,9 +77,8 @@ class LoansController extends Controller
                 'return_date' => $request->return_date,
                 'purpose' => $request->purpose,
                 'status' => 'pending',
-                'notes' => $suratPath,
+                'surat_path' => $suratPath,
             ]);
-
 
             foreach ($request->items as $itemData) {
                 $itemId = $itemData['item_id'];
@@ -106,7 +103,7 @@ class LoansController extends Controller
                         'condition_before' => $unit->condition,
                     ]);
 
-                    $unit->update(['status' => 'dipesan']);
+                    $unit->update(['status' => 'dipinjam']);
                 }
             }
 
@@ -308,6 +305,11 @@ class LoansController extends Controller
 
         $loan->load(['user', 'details.itemUnit.item', 'approver']);
 
+        $suratUrl = null;
+        if ($loan->surat_path) {
+            $suratUrl = asset('storage/' . $loan->surat_path);
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -320,7 +322,7 @@ class LoansController extends Controller
                 'actual_return_date' => $loan->actual_return_date ? $loan->actual_return_date->format('d F Y') : null,
                 'purpose' => $loan->purpose,
                 'status' => $loan->status,
-                'status_badge' => $this->getStatusBadge($loan->status),
+                'status_badge' => ($loan->status),
                 'approved_at' => $loan->approved_at ? $loan->approved_at->format('d F Y H:i') : null,
                 'approver_name' => $loan->approver ? $loan->approver->name : null,
                 'created_at' => $loan->created_at->format('d F Y H:i'),
@@ -328,14 +330,16 @@ class LoansController extends Controller
                 'return_requested_at' => $loan->return_requested_at ? $loan->return_requested_at->format('d F Y H:i') : null,
                 'return_request_notes' => $loan->return_request_notes,
                 'return_request_status' => $loan->return_request_status,
+                'surat_path' => $loan->surat_path,
+                'surat_url' => $suratUrl,
                 'details' => $loan->details->map(function ($detail) {
                     return [
                         'inventory_code' => $detail->itemUnit->inventory_code ?? '-',
                         'item_name' => $detail->itemUnit->item->name,
                         'condition_before' => $detail->condition_before,
-                        'condition_before_badge' => $this->getConditionBadge($detail->condition_before),
+                        'condition_before_badge' => ($detail->condition_before),
                         'condition_after' => $detail->condition_after,
-                        'condition_after_badge' => $detail->condition_after ? $this->getConditionBadge($detail->condition_after) : '<span class="badge bg-secondary">Belum dicek</span>',
+                        'condition_after_badge' => $detail->condition_after ? ($detail->condition_after) : '<span class="badge bg-secondary">Belum dicek</span>',
                     ];
                 })
             ]
@@ -353,5 +357,93 @@ class LoansController extends Controller
         return response()->download($templatePath, 'Template_Surat_Peminjaman.docx');
     }
 
+    public function viewSurat(Loan $loan)
+    {
+        if ($loan->user_id !== auth()->id() && auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        if (!$loan->surat_path) {
+            return redirect()->back()->with('error', 'Surat tidak ditemukan.');
+        }
+
+        $suratPath = storage_path('app/public/' . $loan->surat_path);
+
+        if (!file_exists($suratPath)) {
+            return redirect()->back()->with('error', 'File surat tidak ditemukan.');
+        }
+
+        return response()->file($suratPath);
+    }
+
+    public function downloadSurat(Loan $loan)
+    {
+        if ($loan->user_id !== auth()->id() && auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        if (!$loan->surat_path) {
+            return redirect()->back()->with('error', 'Surat tidak ditemukan.');
+        }
+
+        $suratPath = storage_path('app/public/' . $loan->surat_path);
+
+        if (!file_exists($suratPath)) {
+            return redirect()->back()->with('error', 'File surat tidak ditemukan.');
+        }
+
+        $fileName = 'Surat_Peminjaman_' . $loan->loan_code . '.pdf';
+        return response()->download($suratPath, $fileName);
+    }
+
+    public function showLoan(Loan $loan)
+    {
+        if ($loan->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $loan->load('details.itemUnit.item');
+        return view('user.peminjaman.show', compact('loan'));
+    }
+
+    public function showItem($item)
+    {
+        return view('user.item.show', compact('item'));
+    }
+
+    public function returnIndex()
+    {
+        $loans = Loan::where('user_id', auth()->id())
+            ->where('status', 'borrowed')
+            ->with('details.itemUnit.item')
+            ->latest()
+            ->paginate(10);
+
+        return view('user.returns.index', compact('loans'));
+    }
+
+    public function returnCreate(Loan $loan)
+    {
+        if ($loan->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if ($loan->status !== 'borrowed') {
+            return back()->with('error', 'Peminjaman tidak dapat dikembalikan.');
+        }
+
+        $loan->load('details.itemUnit.item');
+        return view('user.returns.create', compact('loan'));
+    }
+
+    public function returnShow(Loan $loan)
+    {
+        if ($loan->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $loan->load('details.itemUnit.item');
+        return view('user.returns.show', compact('loan'));
+    }
 
 }

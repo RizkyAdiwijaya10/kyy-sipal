@@ -73,8 +73,8 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Overdue</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['overdue'] }}</div>
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Ditolak</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['rejected'] }}</div>
                         </div>
                         <div class="col-auto">
                             <i class="mdi mdi-alert-circle-outline fa-2x text-danger"></i>
@@ -121,7 +121,7 @@
                         <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
                     </div>
                     <div class="col-md-3 d-flex gap-2 align-items-center">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-success">
                             <i class="mdi mdi-filter"></i> Filter
                         </button>
                         @if(request()->hasAny(['search', 'status', 'date_from', 'date_to']))
@@ -217,19 +217,6 @@
                                         </button>
                                     @endif
 
-                                    @if(in_array($loan->status, ['borrowed', 'overdue']))
-                                        @if($loan->return_request_status == 'pending')
-                                            <button type="button" class="btn btn-success btn-sm"
-                                                    onclick="openApproveReturnModal({{ $loan->id }})">
-                                                <i class="mdi mdi-keyboard-return"></i> Terima Kembali
-                                            </button>
-                                            <button type="button" class="btn btn-outline-danger btn-sm"
-                                                    onclick="openRejectReturnModal({{ $loan->id }}, '{{ $loan->loan_code }}', '{{ $loan->user->name }}')">
-                                                <i class="mdi mdi-close"></i> Tolak
-                                            </button>
-                                        @endif
-                                    @endif
-
                                     <button type="button" class="btn btn-info btn-sm"
                                             onclick="showDetailModal({{ $loan->id }})">
                                         <i class="mdi mdi-eye"></i> Detail
@@ -258,17 +245,13 @@
     </div>
 </div>
 
-{{-- ============================================================ --}}
-{{-- SEMUA MODAL DI LUAR TABEL --}}
-{{-- ============================================================ --}}
-
 {{-- MODAL APPROVE --}}
 <div class="modal fade" id="approveModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <form method="POST" id="approveForm">
                 @csrf
-                <div class="modal-header bg-success text-white">
+                <div class="modal-header text-dark">
                     <h5 class="modal-title"><i class="mdi mdi-check-circle-outline me-2"></i>Setujui Peminjaman</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -284,7 +267,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-success">Ya, Setujui</button>
+                    <button type="submit" class="btn btn-primary">Konfirmasi</button>
                 </div>
             </form>
         </div>
@@ -297,7 +280,7 @@
         <div class="modal-content">
             <form method="POST" id="rejectForm">
                 @csrf
-                <div class="modal-header bg-danger text-white">
+                <div class="modal-header text-dark">
                     <h5 class="modal-title"><i class="mdi mdi-close-circle-outline me-2"></i>Tolak Peminjaman</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -314,7 +297,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-danger">Ya, Tolak</button>
+                    <button type="submit" class="btn btn-primary">Konfirmasi</button>
                 </div>
             </form>
         </div>
@@ -327,7 +310,7 @@
         <div class="modal-content">
             <form method="POST" id="confirmBorrowedForm">
                 @csrf
-                <div class="modal-header bg-primary text-white">
+                <div class="modal-header text-dark">
                     <h5 class="modal-title"><i class="mdi mdi-bookmark-check-outline me-2"></i>Konfirmasi Pengambilan</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -345,7 +328,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Ya, Konfirmasi</button>
+                    <button type="submit" class="btn btn-primary">Konfirmasi</button>
                 </div>
             </form>
         </div>
@@ -459,7 +442,10 @@
 </div>
 
 @push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
 // ============================================================
 // URL BASE
 // ============================================================
@@ -644,29 +630,28 @@ function showDetailModal(loanId) {
             `).join('') || '<tr><td colspan="5" class="text-center py-3 text-muted">Tidak ada data barang</td></tr>';
 
             let suratHtml = '';
-            if (d.attachment_path) {
+            if (d.surat_url) {
                 suratHtml = `
                     <div class="card mb-4">
-                        <div class="card-header bg-light">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <h6 class="mb-0"><i class="mdi mdi-file-pdf text-danger me-2"></i>Surat Peminjaman</h6>
+                            <div>
+                                <a href="${d.surat_url}" class="btn btn-sm btn-primary me-2" target="_blank">
+                                    <i class="mdi mdi-open-in-new"></i> Buka Baru
+                                </a>
+                                <a href="${d.surat_url}" download="Surat_${d.loan_code}.pdf" class="btn btn-sm btn-success">
+                                    <i class="mdi mdi-download"></i> Unduh
+                                </a>
+                            </div>
                         </div>
                         <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 d-flex align-items-center">
-                                    <i class="mdi mdi-file-pdf text-danger" style="font-size:48px"></i>
-                                    <div class="ms-3">
-                                        <strong>${d.attachment_path.split('/').pop()}</strong><br>
-                                        <small class="text-muted">Diupload: ${d.created_at}</small>
-                                    </div>
+                            <div style="height: 400px; overflow: auto; border: 1px solid #dee2e6; border-radius: 4px;">
+                                <div id="pdf-viewer-admin-${loanId}" style="width: 100%; padding: 20px; text-align: center;">
+                                    
                                 </div>
-                                <div class="col-md-4 text-end">
-                                    <a href="${baseUrl}/${loanId}/view-surat" class="btn btn-primary btn-sm" target="_blank">
-                                        <i class="mdi mdi-eye"></i> Lihat
-                                    </a>
-                                    <a href="${baseUrl}/${loanId}/download-surat" class="btn btn-success btn-sm">
-                                        <i class="mdi mdi-download"></i> Download
-                                    </a>
-                                </div>
+                            </div>
+                            <div class="mt-2 text-center">
+                                <small class="text-muted">PDF Viewer - Scroll untuk melihat halaman berikutnya</small>
                             </div>
                         </div>
                     </div>`;
@@ -708,7 +693,6 @@ function showDetailModal(loanId) {
                                     <tr><th>Tujuan</th><td>: ${d.purpose || '-'}</td></tr>
                                     <tr><th>Disetujui</th><td>: ${d.approved_at || '-'}</td></tr>
                                     <tr><th>Oleh</th><td>: ${d.approver_name || '-'}</td></tr>
-                                    <tr><th>Catatan Admin</th><td>: ${d.notes || '-'}</td></tr>
                                 </table>
                             </div>
                         </div>
@@ -736,6 +720,13 @@ function showDetailModal(loanId) {
                         </div>
                     </div>
                 </div>`;
+            
+            // Load PDF after HTML is rendered
+            if (d.surat_url) {
+                setTimeout(() => {
+                    loadPdfViewerAdmin(`pdf-viewer-admin-${loanId}`, d.surat_url);
+                }, 100);
+            }
         })
         .catch(() => {
             modalBody.innerHTML = `
@@ -743,6 +734,56 @@ function showDetailModal(loanId) {
                     <i class="mdi mdi-alert-circle me-2"></i>Terjadi kesalahan saat memuat data.
                 </div>`;
         });
+}
+
+function loadPdfViewerAdmin(containerId, pdfUrl) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error('Container not found:', containerId);
+        return;
+    }
+
+    try {
+        const loadingTask = pdfjsLib.getDocument({
+            url: pdfUrl,
+            withCredentials: true
+        });
+                    
+        loadingTask.promise.then(pdf => {
+            const renderPages = [];
+            for (let i = 1; i <= Math.min(pdf.numPages, 3); i++) {
+                renderPages.push(
+                    pdf.getPage(i).then(page => {
+                        const viewport = page.getViewport({ scale: 1.5 });
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+                        canvas.style.marginBottom = '10px';
+                        canvas.style.border = '1px solid #ddd';
+                        canvas.style.maxWidth = '100%';
+                        canvas.style.height = 'auto';
+                        canvas.style.display = 'block';
+
+                        const renderContext = {
+                            canvasContext: context,
+                            viewport: viewport
+                        };
+                        return page.render(renderContext).promise.then(() => {
+                            container.appendChild(canvas);
+                        });
+                    })
+                );
+            }
+            return Promise.all(renderPages);
+        }).catch(error => {
+            console.error('Error loading PDF:', error);
+            container.innerHTML = '<div class="alert alert-warning m-2"><i class="mdi mdi-alert"></i> Gagal memuat PDF. URL: ' + pdfUrl + '</div>';
+        });
+    } catch (error) {
+        console.error('Error initializing PDF.js:', error);
+        container.innerHTML = '<div class="alert alert-warning m-2"><i class="mdi mdi-alert"></i> Error: ' + error.message + '</div>';
+    }
 }
 </script>
 @endpush

@@ -103,7 +103,6 @@
                                 <th>Tanggal Pinjam</th>
                                 <th>Jumlah Item</th>
                                 <th>Status</th>
-                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -139,12 +138,7 @@
                                         <span class="badge bg-secondary">{{ $loan->status }}</span>
                                     @endif
                                 </td>
-                                <td>
-                                    <a href="{{ route('user.loans.show', $loan) }}" 
-                                    class="btn btn-sm btn-info">
-                                        <i class="mdi mdi-eye"></i> Detail
-                                    </a>
-                                </td>
+                                
                             </tr>
                             @empty
                             <tr>

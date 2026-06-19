@@ -27,7 +27,6 @@ class DashboardController extends Controller
         $totalUnits = ItemUnit::count();
         $availableUnits = ItemUnit::where('status', 'tersedia')->count();
         $borrowedUnits = ItemUnit::where('status', 'dipinjam')->count();
-
         $totalCategories = Category::count();
 
         $recentLoans = Loan::with('user')
@@ -35,23 +34,23 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        $lowStockItems = Item::with('category')
-            ->withCount(['itemUnits' => function ($q) {
-                $q->where('status', 'tersedia');
-            }])
-            ->having('item_units_count', '<', 3)
-            ->orderBy('item_units_count')
-            ->limit(5)
-            ->get();
+        // $lowStockItems = Item::with('category')
+        //     ->withCount(['itemUnits' => function ($q) {
+        //         $q->where('status', 'tersedia');
+        //     }])
+        //     ->having('item_units_count', '<', 3)
+        //     ->orderBy('item_units_count')
+        //     ->limit(5)
+        //     ->get();
 
-        $recentItems = Item::with('category')
-            ->latest()
-            ->limit(5)
-            ->get();
+        // $recentItems = Item::with('category')
+        //     ->latest()
+        //     ->limit(5)
+        //     ->get();
 
-        $totalUsers = User::count();
+        // $totalUsers = User::count();
 
-        $totalLoans = Loan::count();
+        // $totalLoans = Loan::count();
 
         return view('admin.dashboard.index', compact(
             'totalUnits',
@@ -59,10 +58,10 @@ class DashboardController extends Controller
             'borrowedUnits',
             'totalCategories',
             'recentLoans',
-            'lowStockItems',
-            'recentItems',
-            'totalUsers',
-            'totalLoans'
+            // 'lowStockItems',
+            // 'recentItems',
+            // 'totalUsers',
+            // 'totalLoans'
         ));
     }
 

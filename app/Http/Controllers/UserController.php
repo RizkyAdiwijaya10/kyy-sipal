@@ -11,7 +11,8 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $query = User::query();
-
+        $query->where('role', 'user');
+        
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
@@ -38,12 +39,6 @@ class UserController extends Controller
             'role' => 'required|in:admin,user',
         ]);
 
-        if ($request->fails()) {
-            return redirect()->route('admin.users.index')
-                ->withErrors($request)
-                ->withInput()
-                ->with('error', 'Gagal menambahkan user. Periksa kembali data Anda.');
-        }
 
         User::create([
             'name' => $request->name,

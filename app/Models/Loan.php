@@ -1,5 +1,4 @@
 <?php
-// app/Models/Loan.php
 
 namespace App\Models;
 
@@ -17,6 +16,7 @@ class Loan extends Model
         'return_date',
         'actual_return_date',
         'purpose',
+        'surat_path',
         'status',
         'notes',
         'approved_by',
@@ -37,25 +37,21 @@ class Loan extends Model
         'return_approved_at' => 'datetime',
     ];
 
-    // Relasi ke user peminjam
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Relasi ke user yang menyetujui
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
 
-    // Relasi ke detail peminjaman
     public function details()
     {
         return $this->hasMany(LoanDetail::class);
     }
 
-    // Relasi ke unit barang melalui detail
     public function itemUnits()
     {
         return $this->belongsToMany(ItemUnit::class, 'loan_details')
@@ -63,13 +59,13 @@ class Loan extends Model
                     ->withTimestamps();
     }
 
-    // Generate kode peminjaman
     public static function generateLoanCode()
     {
         $year = date('Y');
         $month = date('m');
         $lastLoan = self::whereYear('created_at', $year)
                         ->whereMonth('created_at', $month)
+                        ->lockForUpdate()
                         ->orderBy('id', 'desc')
                         ->first();
 
@@ -83,61 +79,20 @@ class Loan extends Model
         return 'PJM/' . $year . '/' . $month . '/' . $newNumber;
     }
 
-    // Cek apakah sudah melewati tanggal kembali
     public function isOverdue()
     {
         return $this->status == 'borrowed' && now()->startOfDay() > $this->return_date;
     }
 
-    // Scope untuk status tertentu
-    public function scopePending($query)
-    {
-        return $query->where('status', 'pending');
-    }
-
-    public function scopeApproved($query)
-    {
-        return $query->where('status', 'approved');
-    }
-
-    public function scopeBorrowed($query)
-    {
-        return $query->where('status', 'borrowed');
-    }
-
-    public function scopeReturned($query)
-    {
-        return $query->where('status', 'returned');
-    }
-
-    public function scopeOverdue($query)
-    {
-        return $query->where('status', 'borrowed')
-                     ->whereDate('return_date', '<', now()->startOfDay());
-    }
-
-    // Scope untuk user tertentu
-    public function scopeForUser($query, $userId)
-    {
-        return $query->where('user_id', $userId);
-    }
-
-     public function canRequestReturn()
+    public function canRequestReturn()
     {
         return $this->status === 'borrowed' && 
                is_null($this->return_requested_at) && 
                is_null($this->actual_return_date);
     }
 
-    // Cek apakah pengajuan pengembalian pending
     public function isReturnRequestPending()
     {
         return $this->return_request_status === 'pending';
-    }
-
-    // Scope untuk pengajuan pengembalian
-    public function scopeReturnRequestPending($query)
-    {
-        return $query->where('return_request_status', 'pending');
     }
 }

@@ -23,13 +23,7 @@
 <body class="with-welcome-text">
     <div class="container-scroller">
         <nav class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex align-items-top flex-row">
-            <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
-                <div class="me-3">
-                    <button class="navbar-toggler navbar-toggler align-self-center" type="button"
-                        data-bs-toggle="minimize">
-                        <span class="icon-menu"></span>
-                    </button>
-                </div>
+            <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">         
                 <div>
                     <a class="navbar-brand brand-logo" href="{{ route('dashboard') }}"
                         style=
@@ -38,15 +32,21 @@
                         color:#1F3BB3;
                         letter-spacing:1px;
                         text-decoration:none;">
-                        SIPALLL
+                        SIPAL
                     </a>
 
-                    <a class="navbar-brand brand-logo-mini" href="{{ route('dashboard') }}">
+                    <a class="navbar-brand brand-logo-mini " href="{{ route('dashboard') }}">
                         <img src="{{ asset('assets/images/logo-mini.svg') }}" alt="logo" />
                     </a>
                 </div>
             </div>
             <div class="navbar-menu-wrapper d-flex align-items-top">
+                <div class="me-3">
+                    <button class="navbar-toggler navbar-toggler align-self-center" type="button"
+                        data-bs-toggle="minimize">
+                        <span class="icon-menu"></span>
+                    </button>
+                </div>
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item d-none d-lg-block">
                         <div id="datepicker-popup" class="input-group date datepicker navbar-date-picker">
@@ -200,31 +200,15 @@
                                 <span class="menu-title">Ajukan Peminjaman</span>
                             </a>
                         </li>
-                        {{-- <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('user.returns.*') ? 'active' : '' }}"
-                            href="{{ route('user.returns.index') }}">
-                                <i class="mdi mdi-backup-restore menu-icon"></i>
-                                <span class="menu-title">Pengembalian</span>
-                                @php
-                                    $pendingReturnCount = \App\Models\Loan::where('user_id', Auth::id())
-                                        ->where('return_request_status', 'pending')
-                                        ->whereNotNull('return_requested_at')
-                                        ->count();
-                                @endphp
-                                @if ($pendingReturnCount > 0)
-                                <span class="badge bg-warning ms-auto">{{ $pendingReturnCount }}</span>
-                                @endif
-                            </a>
-                        </li> --}}
 
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('user.loans.history') ? 'active' : '' }}"
                                 href="{{ route('user.loans.history') }}">
                                 <i class="mdi mdi-history menu-icon"></i>
-                                <span class="menu-title">Riwayat Saya</span>
+                                <span class="menu-title">Pengajuan Saya</span>
                                 @php
                                     $userLoansCount = \App\Models\Loan::where('user_id', Auth::id())
-                                        ->where('status', ['borrowed', 'overdue'])
+                                        ->where('status', ['pending'])
                                         ->count();
                                 @endphp
                                 @if ($userLoansCount > 0)

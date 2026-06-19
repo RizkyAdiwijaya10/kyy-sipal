@@ -284,9 +284,8 @@
                                 </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="text-center text-muted py-5">Tidak ada data peminjaman<\
-                                                /td>
-                                                <\ /tr>
+                                        <td colspan="8" class="text-center text-muted py-5">Tidak ada data peminjaman </td>
+                                    </tr>
                                 @endforelse
                             </tbody>
                         </table>

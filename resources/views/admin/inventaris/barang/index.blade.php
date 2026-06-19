@@ -176,7 +176,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label>Nama Barang <span class="text-danger">*</span></label>
+                            <label>Nama Barang <span class="text-danger"></span></label>
                             <input type="text" name="name" class="form-control" required>
                         </div>
                         <div class="mb-3">
@@ -301,7 +301,7 @@
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label>Nama Barang <span class="text-danger">*</span></label>
+                                <label>Nama Barang <span class="text-danger"></span></label>
                                 <input type="text" name="name" value="{{ $item->name }}"
                                     class="form-control" required>
                             </div>

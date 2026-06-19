@@ -20,7 +20,7 @@
                             </button>
                         </div>
                     </div>
-                    
+
 
                     @if (session('success'))
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -97,20 +97,12 @@
                                                 <span>User</span>
                                             @endif
                                         </td>
-                                        {{-- <td>
-                                    @if ($user->email_verified_at)
-                                        <span class="badge bg-success">Terverifikasi</span>
-                                        <br>
-                                        <small>{{ $user->email_verified_at->format('d/m/Y H:i') }}</small>
-                                    @else
-                                        <span class="badge bg-warning">Belum Verifikasi</span>
-                                    @endif
-                                </td> --}}
                                         <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
                                         <td>
                                             <div class="d-flex gap-1">
                                                 <button class="btn btn-info btn-sm btn-icon" data-bs-toggle="modal"
-                                                    data-bs-target="#showUserModal{{ $user->id }}" title="Lihat Detail">
+                                                    data-bs-target="#showUserModal{{ $user->id }}"
+                                                    title="Lihat Detail">
                                                     <i class="mdi mdi-eye"></i> Lihat
                                                 </button>
 
@@ -127,10 +119,7 @@
                                                         @method('DELETE')
 
                                                         <button type="button" class="btn btn-danger btn-sm btn-icon"
-                                                            onclick="confirmDelete(
-                                                        'delete-user-{{ $user->id }}',
-                                                        'User {{ $user->name }} akan dihapus secara permanen'
-                                                    )"
+                                                            onclick="confirmDelete('delete-user-{{ $user->id }}', '{{ $user->name }}')"
                                                             title="Hapus User">
                                                             <i class="mdi mdi-delete"></i> Hapus
                                                         </button>
@@ -331,60 +320,105 @@
         </div>
     @endforeach
     <!-- Modal Filter -->
-<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title" id="filterModalLabel">
-                    <i class="mdi mdi-filter me-2"></i> Filter User
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                    aria-label="Close"></button>
-            </div>
-            <form method="GET" action="{{ route('admin.users.index') }}">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="search" class="form-label">Cari Nama / Email</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white">
-                                <i class="mdi mdi-magnify text-muted"></i>
-                            </span>
-                            <input type="text" name="search" id="search"
-                                class="form-control border-start-0"
-                                placeholder="Nama atau email..." value="{{ request('search') }}">
+    <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="filterModalLabel">
+                        <i class="mdi mdi-filter me-2"></i> Filter User
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <form method="GET" action="{{ route('admin.users.index') }}">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="search" class="form-label">Cari Nama / Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white">
+                                    <i class="mdi mdi-magnify text-muted"></i>
+                                </span>
+                                <input type="text" name="search" id="search" class="form-control border-start-0"
+                                    placeholder="Nama atau email..." value="{{ request('search') }}">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Filter Berdasarkan Role</label>
+                            <select class="form-select" id="role" name="role">
+                                <option value="">Semua Role</option>
+                                <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                                <option value="user" {{ request('role') == 'user' ? 'selected' : '' }}>User</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="role" class="form-label">Filter Berdasarkan Role</label>
-                        <select class="form-select" id="role" name="role">
-                            <option value="">Semua Role</option>
-                            <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                            <option value="user" {{ request('role') == 'user' ? 'selected' : '' }}>User</option>
-                        </select>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="mdi mdi-filter"></i> Terapkan Filter
+                        </button>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="mdi mdi-filter"></i> Terapkan Filter
-                    </button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 
 @endsection
 
 @push('scripts')
     <script>
-        function confirmDelete(formId, message) {
-            if (confirm(message + '\n\nApakah Anda yakin ingin menghapus?')) {
-                document.getElementById(formId).submit();
-            }
+        function confirmDelete(formId, userName) {
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                html: `Anda akan menghapus user <strong>${userName}</strong>. <br> Data yang dihapus tidak dapat dikembalikan!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Hapus!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'swal2-popup-custom'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Menghapus...',
+                        text: 'Sedang memproses penghapusan data.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    document.getElementById(formId).submit();
+                }
+            });
         }
 
-        // Auto close modal if there are errors and show alert
+        // Notifikasi sukses
+        @if (session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{{ session('success') }}',
+                timer: 3000,
+                showConfirmButton: true
+            });
+        @endif
+
+        // Notifikasi error
+        @if (session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: '{{ session('error') }}',
+                timer: 3000,
+                showConfirmButton: true
+            });
+        @endif
+
+        // Auto show modal jika ada error validasi
         @if ($errors->any())
             @if (old('password') !== null || old('name') !== null)
                 var myModal = new bootstrap.Modal(document.getElementById('createUserModal'));

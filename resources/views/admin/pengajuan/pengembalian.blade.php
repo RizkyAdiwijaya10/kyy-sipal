@@ -1,12 +1,9 @@
 @extends('layouts.app')
 
 @section('title', 'Pengajuan Pengembalian')
-@section('page-title', 'Pengajuan Pengembalian')
-@section('page-subtitle', 'Kelola pengajuan pengembalian barang dari user')
 
 @section('content')
     <div class="row">
-
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {{ session('success') }}
@@ -20,7 +17,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
-
+ 
         <div class="row mb-4">
             <div class="col-xl-3 col-md-6 mb-4">
                 <div class="card border-left-warning shadow h-100 py-2">
@@ -141,7 +138,7 @@
 
                         {{-- Tombol --}}
                         <div class="col-md-3 d-flex gap-2 align-items-center">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-success">
                                 <i class="mdi mdi-filter"></i> Filter
                             </button>
                             @if (request()->hasAny(['search', 'status', 'date_from', 'date_to']))
@@ -200,9 +197,28 @@
                                             }
                                         @endphp
                                         @if ($allChecked && count($conditions) > 0)
-                                            <span>
-                                                {{ implode(', ', array_unique($conditions)) }}
-                                            </span>
+                                            @php
+                                                $uniqueConditions = array_unique($conditions);
+                                                $badges = [];
+                                                foreach ($uniqueConditions as $cond) {
+                                                    if ($cond == 'baik') {
+                                                        $badges[] = '<span class="badge bg-success">Baik</span>';
+                                                    } elseif ($cond == 'maintenance') {
+                                                        $badges[] =
+                                                            '<span class="badge bg-warning text-dark">Maintenance</span>';
+                                                    } elseif ($cond == 'rusak') {
+                                                        $badges[] = '<span class="badge bg-danger">Rusak</span>';
+                                                    } elseif ($cond == 'hilang') {
+                                                        $badges[] = '<span class="badge bg-secondary">Hilang</span>';
+                                                    } else {
+                                                        $badges[] =
+                                                            '<span class="badge bg-secondary">' .
+                                                            ucfirst($cond) .
+                                                            '</span>';
+                                                    }
+                                                }
+                                            @endphp
+                                            {!! implode(', ', $badges) !!}
                                         @elseif($loan->return_request_status == 'approved')
                                             <span class="badge bg-success">Sudah dicek</span>
                                         @else
@@ -431,7 +447,10 @@
     @endpush
 
     @push('scripts')
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
         <script>
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
             function showReturnDetailModal(loanId) {
                 const modal = new bootstrap.Modal(document.getElementById('returnDetailModal'));
                 const modalBody = document.getElementById('returnDetailModalBody');
@@ -499,6 +518,34 @@
                     `;
                             }
 
+                            let suratHtml = '';
+                            if (d.surat_url) {
+                                suratHtml = `
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0"><i class="mdi mdi-file-pdf text-danger me-2"></i>Surat Peminjaman</h6>
+                                <div>
+                                    <a href="${d.surat_url}" class="btn btn-sm btn-primary me-2" target="_blank">
+                                        <i class="mdi mdi-open-in-new"></i> Buka Baru
+                                    </a>
+                                    <a href="${d.surat_url}" download="Surat_${d.loan_code}.pdf" class="btn btn-sm btn-success">
+                                        <i class="mdi mdi-download"></i> Unduh
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div style="height: 400px; overflow: auto; border: 1px solid #dee2e6; border-radius: 4px;">
+                                    <div id="pdf-viewer-return-${loanId}" style="width: 100%; padding: 20px; text-align: center;">
+                                    
+                                    </div>
+                                </div>
+                                <div class="mt-2 text-center">
+                                    <small class="text-muted">PDF Viewer - Scroll untuk melihat halaman berikutnya</small>
+                                </div>
+                            </div>
+                        </div>`;
+                            }
+
                             modalBody.innerHTML = `
                     <div class="row mb-4">
                         <div class="col-md-6">
@@ -527,7 +574,7 @@
                         </div>
                     </div>
                     
-                    
+                    ${suratHtml}
                     
                     <div class="card">
                         <div class="card-header">
@@ -553,6 +600,13 @@
                         </div>
                     </div>
                 `;
+                            
+                            // Load PDF after HTML is rendered
+                            if (d.surat_url) {
+                                setTimeout(() => {
+                                    loadPdfViewerReturn(`pdf-viewer-return-${loanId}`, d.surat_url);
+                                }, 100);
+                            }
                         } else {
                             modalBody.innerHTML = `
                     <div class="alert alert-danger">
@@ -571,6 +625,56 @@
                 </div>
             `;
                     });
+            }
+
+            function loadPdfViewerReturn(containerId, pdfUrl) {
+                const container = document.getElementById(containerId);
+                if (!container) {
+                    console.error('Container not found:', containerId);
+                    return;
+                }
+
+                try {
+                    const loadingTask = pdfjsLib.getDocument({
+                        url: pdfUrl,
+                        withCredentials: true
+                    });
+                    
+                    loadingTask.promise.then(pdf => {
+                        const renderPages = [];
+                        for (let i = 1; i <= Math.min(pdf.numPages, 3); i++) {
+                            renderPages.push(
+                                pdf.getPage(i).then(page => {
+                                    const viewport = page.getViewport({ scale: 1.5 });
+                                    const canvas = document.createElement('canvas');
+                                    const context = canvas.getContext('2d');
+                                    canvas.height = viewport.height;
+                                    canvas.width = viewport.width;
+                                    canvas.style.marginBottom = '10px';
+                                    canvas.style.border = '1px solid #ddd';
+                                    canvas.style.maxWidth = '100%';
+                                    canvas.style.height = 'auto';
+                                    canvas.style.display = 'block';
+
+                                    const renderContext = {
+                                        canvasContext: context,
+                                        viewport: viewport
+                                    };
+                                    return page.render(renderContext).promise.then(() => {
+                                        container.appendChild(canvas);
+                                    });
+                                })
+                            );
+                        }
+                        return Promise.all(renderPages);
+                    }).catch(error => {
+                        console.error('Error loading PDF:', error);
+                        container.innerHTML = '<div class="alert alert-warning m-2"><i class="mdi mdi-alert"></i> Gagal memuat PDF. URL: ' + pdfUrl + '</div>';
+                    });
+                } catch (error) {
+                    console.error('Error initializing PDF.js:', error);
+                    container.innerHTML = '<div class="alert alert-warning m-2"><i class="mdi mdi-alert"></i> Error: ' + error.message + '</div>';
+                }
             }
         </script>
     @endpush
