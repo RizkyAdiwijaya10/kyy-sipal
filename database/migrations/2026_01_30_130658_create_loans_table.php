@@ -28,7 +28,7 @@ return new class extends Migration
             $table->text('return_request_notes')->nullable(); 
             $table->enum('return_request_status', ['pending', 'approved', 'rejected'])->nullable();
             $table->foreignId('return_approved_by')->nullable()->constrained('users')->nullOnDelete(); 
-             $table->timestamp('return_approved_at')->nullable();
+            $table->timestamp('return_approved_at')->nullable();
             $table->timestamps();
         });
         

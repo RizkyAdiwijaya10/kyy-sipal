@@ -153,7 +153,7 @@
                                 <div class="mt-3 d-grid gap-2">
                                     <button type="submit"
                                         class="btn btn-block btn-primary btn-lg fw-medium auth-form-btn">
-                                        SIGN UP
+                                       DAFTAR
                                     </button>
                                 </div>
 

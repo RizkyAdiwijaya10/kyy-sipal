@@ -42,7 +42,7 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended(route('dashboard', absolute: false));
         }
 
-        // Jika login gagal
+        // Jika login gagal 
         return back()->withErrors([
             'login' => 'Username/Email atau password salah.',
         ])->onlyInput('login');
