@@ -17,7 +17,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
- 
+
         <div class="row mb-4">
             <div class="col-xl-3 col-md-6 mb-4">
                 <div class="card border-left-warning shadow h-100 py-2">
@@ -600,7 +600,7 @@
                         </div>
                     </div>
                 `;
-                            
+
                             // Load PDF after HTML is rendered
                             if (d.surat_url) {
                                 setTimeout(() => {
@@ -639,13 +639,15 @@
                         url: pdfUrl,
                         withCredentials: true
                     });
-                    
+
                     loadingTask.promise.then(pdf => {
                         const renderPages = [];
                         for (let i = 1; i <= Math.min(pdf.numPages, 3); i++) {
                             renderPages.push(
                                 pdf.getPage(i).then(page => {
-                                    const viewport = page.getViewport({ scale: 1.5 });
+                                    const viewport = page.getViewport({
+                                        scale: 1.5
+                                    });
                                     const canvas = document.createElement('canvas');
                                     const context = canvas.getContext('2d');
                                     canvas.height = viewport.height;
@@ -669,11 +671,14 @@
                         return Promise.all(renderPages);
                     }).catch(error => {
                         console.error('Error loading PDF:', error);
-                        container.innerHTML = '<div class="alert alert-warning m-2"><i class="mdi mdi-alert"></i> Gagal memuat PDF. URL: ' + pdfUrl + '</div>';
+                        container.innerHTML =
+                            '<div class="alert alert-warning m-2"><i class="mdi mdi-alert"></i> Gagal memuat PDF. URL: ' +
+                            pdfUrl + '</div>';
                     });
                 } catch (error) {
                     console.error('Error initializing PDF.js:', error);
-                    container.innerHTML = '<div class="alert alert-warning m-2"><i class="mdi mdi-alert"></i> Error: ' + error.message + '</div>';
+                    container.innerHTML = '<div class="alert alert-warning m-2"><i class="mdi mdi-alert"></i> Error: ' + error
+                        .message + '</div>';
                 }
             }
         </script>
